@@ -10,10 +10,10 @@ require('date-utils');
 const mysql=require('mysql');
 const router=express.Router();
 var connection=mysql.createConnection({
-    host : '--',
-    user : '--',
-    password : '--',
-    datebase : '--',
+    host: '--',
+    user: '--',
+    password: '--',
+    datebase: '--',
     charset: 'utf8_bin'
 });
 connection.connect(function(err){
@@ -291,6 +291,7 @@ router.get('/form/:type/:pages',function(req,res,next){
             
         });
 });
+
 router.get('/form/:user_email',function(req,res,next){
     var userEmail=req.params.user_email;
     var query='SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE user_email=?';
@@ -317,10 +318,10 @@ router.get('/form/:user_email',function(req,res,next){
     });
 });
 
-router.get('/form/:keyword', function (req, res, next) {
-    var keyword = req.params.keyword;
-    var query = 'SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE title LIKE "%?%"';
-    var params = [keyword];
+router.get('/search_keyword/:keyword', function (req, res, next) {
+    var Keyword = req.params.keyword;
+    var query = "SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE title LIKE " + connection.escape('%' + req.params.keyword + '%');
+    var params = [Keyword];
     connection.query(query, params, function (err, rows, fields) {
         if (err) {
             console.log("데이터 select 오류");
