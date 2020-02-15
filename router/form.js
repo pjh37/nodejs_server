@@ -10,10 +10,10 @@ require('date-utils');
 const mysql=require('mysql');
 const router=express.Router();
 var connection=mysql.createConnection({
-    host : '--',
-    user : '--',
-    password : '--',
-    datebase : '--',
+    host: '--',
+    user: '--',
+    password: '--',
+    datebase: '--',
     charset: 'utf8_bin'
 });
 connection.connect(function(err){
@@ -291,6 +291,7 @@ router.get('/form/:type/:pages',function(req,res,next){
             
         });
 });
+
 router.get('/form/:user_email',function(req,res,next){
     var userEmail=req.params.user_email;
     var query='SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE user_email=?';
@@ -316,6 +317,33 @@ router.get('/form/:user_email',function(req,res,next){
             
     });
 });
+
+router.get('/search_keyword/:keyword', function (req, res, next) {
+    var Keyword = req.params.keyword;
+    var query = "SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE title LIKE " + connection.escape('%' + req.params.keyword + '%');
+    var params = [Keyword];
+    connection.query(query, params, function (err, rows, fields) {
+        if (err) {
+            console.log("데이터 select 오류");
+        } else {
+            console.log("데이터 select 성공");
+            var jsonObject = new Array();
+            for (i = 0; i < rows.length; i++) {
+                var temp = new Object();
+                temp._id = rows[i]._id;
+                temp.title = rows[i].title;
+                temp.response_cnt = rows[i].response_cnt;
+                temp.time = rows[i].time;
+
+                jsonObject.push(temp);
+            }
+            console.log(jsonObject[0]);
+            res.status(200).json(jsonObject);
+        }
+
+    });
+});
+
 router.post('/user/forms',function(req,res,next){
     var userEmail;
     var json;
