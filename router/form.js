@@ -10,10 +10,17 @@ require('date-utils');
 const mysql=require('mysql');
 const router=express.Router();
 var connection=mysql.createConnection({
+<<<<<<< HEAD
     host : 'nodejs-003.cafe24.com',
     user : 'pjh1352',
     password : 'sakarin2018',
     datebase : 'pjh1352',
+=======
+    host: '--',
+    user: '--',
+    password: '--',
+    datebase: '--',
+>>>>>>> d4ad23da78e87c96b8fb47b569f02e369f0276c4
     charset: 'utf8_bin'
 });
 connection.connect(function(err){
@@ -291,6 +298,7 @@ router.get('/form/:type/:pages',function(req,res,next){
             
         });
 });
+
 router.get('/form/:user_email',function(req,res,next){
     var userEmail=req.params.user_email;
     var query='SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE user_email=?';
@@ -316,6 +324,10 @@ router.get('/form/:user_email',function(req,res,next){
             
     });
 });
+<<<<<<< HEAD
+=======
+
+>>>>>>> d4ad23da78e87c96b8fb47b569f02e369f0276c4
 router.get('/search_keyword/:keyword', function (req, res, next) {
     var Keyword = req.params.keyword;
     var query = "SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE title LIKE " + connection.escape('%' + req.params.keyword + '%');
@@ -341,6 +353,10 @@ router.get('/search_keyword/:keyword', function (req, res, next) {
 
     });
 });
+<<<<<<< HEAD
+=======
+
+>>>>>>> d4ad23da78e87c96b8fb47b569f02e369f0276c4
 router.post('/user/forms',function(req,res,next){
     var userEmail;
     var json;
