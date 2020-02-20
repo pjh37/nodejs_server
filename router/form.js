@@ -10,10 +10,10 @@ require('date-utils');
 const mysql=require('mysql');
 const router=express.Router();
 var connection=mysql.createConnection({
-    host : '--',
-    user : '--',
-    password : '--',
-    datebase : '--',
+    host : 'nodejs-003.cafe24.com',
+    user : 'pjh1352',
+    password : 'sakarin2018',
+    datebase : 'pjh1352',
     charset: 'utf8_bin'
 });
 connection.connect(function(err){
@@ -316,6 +316,31 @@ router.get('/form/:user_email',function(req,res,next){
             
     });
 });
+router.get('/search_keyword/:keyword', function (req, res, next) {
+    var Keyword = req.params.keyword;
+    var query = "SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE title LIKE " + connection.escape('%' + req.params.keyword + '%');
+    var params = [Keyword];
+    connection.query(query, params, function (err, rows, fields) {
+        if (err) {
+            console.log("데이터 select 오류");
+        } else {
+            console.log("데이터 select 성공");
+            var jsonObject = new Array();
+            for (i = 0; i < rows.length; i++) {
+                var temp = new Object();
+                temp._id = rows[i]._id;
+                temp.title = rows[i].title;
+                temp.response_cnt = rows[i].response_cnt;
+                temp.time = rows[i].time;
+
+                jsonObject.push(temp);
+            }
+            console.log(jsonObject[0]);
+            res.status(200).json(jsonObject);
+        }
+
+    });
+});
 router.post('/user/forms',function(req,res,next){
     var userEmail;
     var json;
@@ -405,5 +430,114 @@ router.get('/survey/:form_id',function(req,res){
                 });
             }
         });
+});
+router.get('/form/:keyword', function (req, res, next) {
+    var keyword = req.params.keyword;
+    var query = 'SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE title LIKE "%?%"';
+    var params = [keyword];
+    connection.query(query, params, function (err, rows, fields) {
+        if (err) {
+            console.log("데이터 select 오류");
+        } else {
+            console.log("데이터 select 성공");
+            var jsonObject = new Array();
+            for (i = 0; i < rows.length; i++) {
+                var temp = new Object();
+                temp._id = rows[i]._id;
+                temp.title = rows[i].title;
+                temp.response_cnt = rows[i].response_cnt;
+                temp.time = rows[i].time;
+
+                jsonObject.push(temp);
+            }
+            console.log(jsonObject[0]);
+            res.status(200).json(jsonObject);
+        }
+
+    });
+});
+router.get('/search/:queryText/:page',function(req,res){
+    var queryText=req.params.queryText;
+    var page=req.params.page;
+    var start=10*page;
+    var end=10*page+10;
+    var query='SELECT * FROM pjh1352.profile WHERE user_email like ?';
+    var params=[queryText+"%"];
+    connection.query(query,params,function(err,rows,fields){
+        if(err){
+            console.log("데이터 select 오류");
+            res.status(404);
+        }else{
+            var jsonObject=new Array();
+            if(end<rows.length){
+                rows.length=end;
+            }
+            for(i=start;i<rows.length;i++){
+                var temp=new Object();
+            
+                temp.userEmail=rows[i].user_email;
+                temp.profileImageUrl=rows[i].profile_image_url;
+                jsonObject.push(temp);
+            }
+            console.log(jsonObject[0]);
+            res.status(200).json(jsonObject);
+        }
+
+    });
+
+});
+router.get('/user/:userEmail',function(req,res){
+    var userEmail=req.params.userEmail;
+    var isExist=false;
+    var query='SELECT * FROM pjh1352.profile where user_email = ?';
+    var params=[userEmail];
+    connection.query(query,params,function(err,rows,fields){
+        if(err){
+            console.log("데이터 select 오류");
+            res.status(404);
+        }else{
+            console.log(rows.length);
+            
+            if(rows.length==0){
+                var query='INSERT INTO pjh1352.profile (user_email) VALUES(?)';
+                var params=[userEmail];
+                connection.query(query,params,function(err,rows,fields){
+                    if(err){
+                        console.log('저장실패'+err);
+                    }else{
+                        console.log('저장완료');
+                        res.status(200).send(true);
+                    }
+                });
+            }
+            
+        }
+    });
+
+});
+router.post('/user/forms',function(req,res,next){
+    var from;
+    var to;
+    form.parse(req);
+    form.on('field',function(name,value){
+        if(name=='from'){
+            from=value;
+        }
+        if(name=='to'){
+            to=value;
+        }
+    });
+    form.on('close',function(){
+        var query='INSERT INTO pjh1352.friend (from,to) VALUES(?,?)';
+        var params=[from,to];
+        connection.query(query,params,function(err,rows,fields){
+            if(err){
+                console.log('저장실패'+err);
+            }else{
+                console.log('저장완료');
+                res.status(200).send(true);
+            }
+        });
+    })
 });
 module.exports=router;
