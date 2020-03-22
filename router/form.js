@@ -9,17 +9,10 @@ const path=require('path');
 //require('date-utils');
 
 var connection=mysql.createConnection({
-<<<<<<< HEAD
     host : 'nodejs-003.cafe24.com',
     user : 'pjh1352',
     password : 'sakarin2018',
     datebase : 'pjh1352',
-=======
-    host: '--',
-    user: '--',
-    password: '--',
-    datebase: '--',
->>>>>>> d4ad23da78e87c96b8fb47b569f02e369f0276c4
     charset: 'utf8_bin'
 });
 connection.connect(function(err){
@@ -711,19 +704,6 @@ router.post('/user/forms',function(req,res,next){
 });
 
 
-
-
-
-
-
-
-
-
-
-<<<<<<< HEAD
-=======
-
->>>>>>> d4ad23da78e87c96b8fb47b569f02e369f0276c4
 router.get('/search_keyword/:keyword', function (req, res, next) {
     var Keyword = req.params.keyword;
     var query = "SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE title LIKE " + connection.escape('%' + req.params.keyword + '%');
@@ -749,17 +729,11 @@ router.get('/search_keyword/:keyword', function (req, res, next) {
 
     });
 });
-<<<<<<< HEAD
-=======
 
->>>>>>> d4ad23da78e87c96b8fb47b569f02e369f0276c4
-
-
-
-router.get('/form/:keyword', function (req, res, next) {
-    var keyword = req.params.keyword;
-    var query = 'SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE title LIKE "%?%"';
-    var params = [keyword];
+router.get('/search_id/:_id', function (req, res, next) {
+    var Keyword = req.params.keyword;
+    var query = "SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE _id"
+    var params = [Keyword];
     connection.query(query, params, function (err, rows, fields) {
         if (err) {
             console.log("데이터 select 오류");
@@ -781,6 +755,8 @@ router.get('/form/:keyword', function (req, res, next) {
 
     });
 });
+
+
 router.get('/search/:queryText/:page',function(req,res){
     var queryText=req.params.queryText;
     var page=req.params.page;
