@@ -5,21 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="//code.jquery.com/jquery.min.js"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css" rel="stylesheet"/> -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
   <link rel="stylesheet" type="text/css" href="../public/css/style.css">
 
   <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
   <link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
   <title>Form</title>
   <%  var formComponents=JSON.parse(json) %>
-  <%#
-  console.log("main head - formComponents = ", formComponents);
-  if(formComponents === null){
-    console.log("main head - formComponents is null");
-  }else{
-    console.log("main head - formComponents.length = ", formComponents.length);
-  }
-    %>
 
 
 </head>
@@ -31,117 +24,241 @@
 <% if(formComponents !== null){ %>
 <%  for(var i=0;i<formComponents.length;i++){ %>
 <%    var mType=formComponents[i].type %>
+<%    var required=formComponents[i].required_switch // boolean
+    //console.log("typeof required = ", typeof required)
+%>
 
-    <% if(mType==0){ %>
-        <%# 단답형 %>
-      <div class="type0 form-group" > <!-- 기본 div margin 을 이용하자 -->
-        <div style="border :2px solid #00BFFF; border-radius:20px; padding: 15px; background-color: #ffffff;">
-          <label name='title'><%= formComponents[i].question  %></label>
-          <!-- <textarea class="form-control" name=<%=i %> placeholder="한줄입력" rows="1"></textarea> -->
-          <input type="text" class="form-control" name=<%=i %> placeholder="한 줄입력">
+
+
+<% if(mType==0){ %>
+      <%# 단답형 %>
+  <% if(required==true){%>
+    <div class="type0 form-group " >
+      <div style="border :2px solid #CC0000; border-radius:20px; padding: 15px; background-color: #ffffff;">
+        <label name='title'><%= formComponents[i].question  %> <span style="color: #ff0000">*</span> </label>
+        <!-- <textarea class="form-control" name=<%=i %> placeholder="한줄입력" rows="1"></textarea> -->
+        <input type="text" class="form-control required" placeholder="한 줄입력" name=<%=i %> >
+      </div>
+    </div>
+
+  <% }else {%>
+    <div class="type0 form-group" > <!-- 기본 div margin 을 이용하자 -->
+      <div style="border :2px solid #00BFFF; border-radius:20px; padding: 15px; background-color: #ffffff;">
+        <label name='title'><%= formComponents[i].question  %> </label>
+        <!-- <textarea class="form-control" name=<%=i %> placeholder="한줄입력" rows="1"></textarea> -->
+        <input type="text" class="form-control" name=<%=i %> placeholder="한 줄입력">
+      </div>
+    </div>
+  <% }%>
+
+  <% }else if(mType==1){ %>
+        <%# 장문형 %>
+
+    <% if(required==true){%>
+
+      <div class="type1 form-group">
+        <div style="border:2px solid #CC0000; border-radius:20px; padding:15px; background-color: #ffffff;">
+          <label name='title'><%= formComponents[i].question  %> <span style="color: #ff0000">*</span> </label>
+          <textarea class="form-control required" placeholder="여러 줄입력" name=<%=i %> ></textarea>
         </div>
       </div>
-      <% } else if(mType==1){ %>
-        <%# 장문형 %>
-        <div class="type1 form-group">
-          <div style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
-            <label name='title'><%= formComponents[i].question  %></label>
-            <textarea class="form-control" name=<%=i %> placeholder="여러 줄입력"></textarea>
-          </div>
+    <% }else {%>
+      <div class="type1 form-group">
+        <div style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
+          <label name='title'><%= formComponents[i].question  %></label>
+          <textarea class="form-control" name=<%=i %> placeholder="여러 줄입력"></textarea>
         </div>
-        <% }else if(mType==2 || mType==3 || mType==4 ){ %>
-          <div class="type234 form-group">
-              <div style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
-                  <label name='title' style="margin:10px"><%= formComponents[i].question  %></label>
-                  <%  var jsonArray=formComponents[i].addedOption
-                      var etc = formComponents[i].OptionEtc_switch
-                   %>
-                   <!-- 둘 다 널체크해야함 -->
-                  <%#
+      </div>
+    <% }%>
 
-        if(jsonArray === null){
-        console.log("type234 - 옵션 is null");
-        }else{
-        console.log("type234 - jsonArray = ", jsonArray);
-        console.log("type234 - jsonArray.length = ", jsonArray.length);
-        }
-        if(etc == null){
-        console.log("type234 - 옵션 is null");
-        }else{
-        console.log("type234 - etc = ", etc);
-        }
-                  %>
+    <% } else if(mType==2 || mType==3 ){ %>
 
-          <%  if(jsonArray !== null){
-              var len = jsonArray.length
-              //console.log("type234 - len = ",len);
-            %>
-                  <% if(mType==2){ %>
-                    <%# 라디오 %>
-                      <% for(var j=0;j<jsonArray.length;j++){ %>
+    <% if(required==true){%>
 
+      <div class="type23 form-group">
+      <div style="border:2px solid #CC0000; border-radius:20px; padding:15px; background-color: #ffffff;">
+        <label name='title' style="margin:10px"><%= formComponents[i].question  %> <span style="color: #ff0000">*</span> </label>
+        <%  var jsonArray=formComponents[i].addedOption
+            var etc = formComponents[i].OptionEtc_switch
+         %>
+
+        <%  if(jsonArray !== null){
+            var len = jsonArray.length
+            //console.log("type234 - len = ",len);
+          %>
+        <% if(mType==2){ %>
+              <%# 라디오 %>
+                <% for(var j=0;j<jsonArray.length;j++){ %>
+
+                <div class="form-check" style="margin:10px">
+                  <!-- name 이 같아야 같은 radio 그룹이 되네,, -->
+                    <input class="form-check-input required" type="radio" id="<%=i%>radio<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
+                    <label class="form-check-label" for="<%=i%>radio<%=j%>">
+                            <%= jsonArray[j] %>
+                    </label>
+                </div>
+                <% } %>
+              <% if(etc !== false){ %>
+                <div class="form-check" style="margin:10px">
+                    <input class="form-check-input" type="radio" id="<%=i%>radio<%=len%>"  >
+                    <label class="form-check-label" for="<%=i%>radio<%=len%>"> 기타: </label>
+                    <input class="form-radio-etc required" type="text"  name=<%= i  %> size="50" />
+                </div>
+
+                <% } %>
+
+            <% }else if(mType==3){ %>
+                <%# 체크박스 %>
+                  <% for(var j=0;j<jsonArray.length;j++){ %>
                       <div class="form-check" style="margin:10px">
-                        <!-- name 이 같아야 같은 radio 그룹이 되네,, -->
-                          <input class="form-check-input" type="radio" id="<%=i%>radio<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
-                          <!-- id check radio 로 바꿔야하나? -->
+                          <input class="form-check-input required" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
                           <label class="form-check-label" for="<%=i%>check<%=j%>">
                                   <%= jsonArray[j] %>
                           </label>
                       </div>
-                      <% } %>
-                    <% if(etc !== false){ %>
-                      <div class="form-check" style="margin:10px">
-                          <input class="form-check-input" type="radio" id="<%=i%>radio<%=len%>"  >
-                          <label class="form-check-label" for="<%=i%>check<%=len%>"> 기타: </label>
-                          <input type="text" class="form-check-etc" name=<%= i  %> size="50" />
-                      </div>
-
-                      <% } %>
-                  <% }else if(mType==3){ %>
-                    <%# 체크박스 %>
-                      <% for(var j=0;j<jsonArray.length;j++){ %>
-                          <div class="form-check" style="margin:10px">
-                              <input class="form-check-input" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
-                              <label class="form-check-label" for="<%=i%>check<%=j%>">
-                                      <%= jsonArray[j] %>
-                              </label>
-                          </div>
-                      <% } %>
-                      <% if(etc !== false){ %>
-                        <div class="form-check" style="margin:10px">
-                            <input class="form-check-input" type="checkbox" id="<%=i%>check<%=len%>" >
-                            <label class="form-check-label" for="<%=i%>check<%=len%>"> 기타: </label>
-                            <input type="text" class="form-check-etc" name=<%= i  %> size="50" />
-                        </div>
-
-                        <% } %>
-                  <% }else if(mType==4){ %>
-                    <%# 드롭다운 %>
-                      <div class="dropdown" style="margin:10px">
-                          <select id="inputState" class="form-control" name=<%= i  %> style="width: 500px" >
-                            <!-- text길이에 맞춰서 유동적으로 select tag 길이가 바뀌는것이 좋겠슴. -->
-                                  <option>선택</option>
-                                  <!-- <option disabled selected hidden>Please Choose...</option> -->
-                                  <% for(var j=0;j<jsonArray.length;j++){ %>
-                                      <option value=<%= jsonArray[j] %>><%= jsonArray[j] %></option>
-                                  <% } %>
-                          </select>
-                      </div>
                   <% } %>
-              <% } %>
+                  <% if(etc !== false){ %>
+                    <div class="form-check" style="margin:10px">
+                        <input class="form-check-input" type="checkbox" id="<%=i%>check<%=len%>" >
+                        <label class="form-check-label" for="<%=i%>check<%=len%>"> 기타: </label>
+                        <input type="text" class="form-check-etc required" name=<%= i  %> size="50" />
+                    </div>
 
-              </div>
+                    <% } %>
+            <% } %>
+
+
+
+    <% } %>
+
+        </div>
+    </div>
+
+
+
+    <% }else {%>
+
+      <div class="type23 form-group">
+      <div style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
+        <label name='title' style="margin:10px"><%= formComponents[i].question  %></label>
+        <%  var jsonArray=formComponents[i].addedOption
+            var etc = formComponents[i].OptionEtc_switch
+         %>
+
+        <%  if(jsonArray !== null){
+            var len = jsonArray.length
+            //console.log("type234 - len = ",len);
+          %>
+        <% if(mType==2){ %>
+          <%# 라디오 %>
+            <% for(var j=0;j<jsonArray.length;j++){ %>
+
+            <div class="form-check" style="margin:10px">
+              <!-- name 이 같아야 같은 radio 그룹이 되네,, -->
+                <input class="form-check-input" type="radio" id="<%=i%>radio<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
+                <label class="form-check-label" for="<%=i%>radio<%=j%>">
+                        <%= jsonArray[j] %>
+                </label>
+            </div>
+            <% } %>
+          <% if(etc !== false){ %>
+            <div class="form-check" style="margin:10px">
+                <input class="form-check-input" type="radio" id="<%=i%>radio<%=len%>"  >
+                <label class="form-check-label" for="<%=i%>radio<%=len%>"> 기타: </label>
+                <input type="text" name=<%= i  %> size="50" />
+            </div>
+
+            <% } %>
+
+
+
+        <% }else if(mType==3){ %>
+              <%# 체크박스 %>
+                <% for(var j=0;j<jsonArray.length;j++){ %>
+                    <div class="form-check" style="margin:10px">
+                        <input class="form-check-input" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
+                        <label class="form-check-label" for="<%=i%>check<%=j%>">
+                                <%= jsonArray[j] %>
+                        </label>
+                    </div>
+                <% } %>
+                <% if(etc !== false){ %>
+                  <div class="form-check" style="margin:10px">
+                      <input class="form-check-input" type="checkbox" id="<%=i%>check<%=len%>" >
+                      <label class="form-check-label" for="<%=i%>check<%=len%>"> 기타: </label>
+                      <input type="text" name=<%= i  %> size="50" />
+                  </div>
+
+                  <% } %>
+        <% }%>
+
+
+
+    <% } %>
+
+        </div>
+    </div>
+    <% }%>
+
+
+      <% }else if(mType==4){ %>
+            <%# 드롭다운 %>
+
+        <% if(required==true){%>
+          <div class="type4 form-group">
+          <div style="border:2px solid #CC0000; border-radius:20px; padding:15px; background-color: #ffffff;">
+            <label name='title' style="margin:10px"><%= formComponents[i].question %> <span style="color: #ff0000">*</span></label>
+
+          <%  var jsonArray=formComponents[i].addedOption %>
+          <%  if(jsonArray !== null){ %>
+
+                    <div class="dropdown" style="margin:10px">
+                        <select class="form-control required" name=<%= i  %> style="width: 500px" >
+                          <!-- text길이에 맞춰서 유동적으로 select tag 길이가 바뀌는것이 좋겠슴. -->
+                                <option disabled selected hidden>선택</option>
+                                <% for(var j=0;j<jsonArray.length;j++){ %>
+                                    <option value=<%= jsonArray[j] %>><%= jsonArray[j] %></option>
+                                <% } %>
+                        </select>
+                    </div>
+
+            <% } %>
           </div>
-          <% } else if(mType==5){%>
-            <%# 직선단계 %>
-                  <div class="type5 form-group" style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
-                      <label name='title' style="margin:10px"><%= formComponents[i].question  %></label>
+        </div>
+        <% }else {%>
+
+          <div class="type4 form-group">
+          <div style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
+            <label name='title' style="margin:10px"><%= formComponents[i].question %></label>
+
+          <%  var jsonArray=formComponents[i].addedOption %>
+          <%  if(jsonArray !== null){ %>
+                    <div class="dropdown" style="margin:10px">
+                        <select class="form-control" name=<%= i  %> style="width: 500px" >
+                          <!-- text길이에 맞춰서 유동적으로 select tag 길이가 바뀌는것이 좋겠슴. -->
+                                <option disabled selected hidden>선택</option>
+                                <% for(var j=0;j<jsonArray.length;j++){ %>
+                                    <option value=<%= jsonArray[j] %>><%= jsonArray[j] %></option>
+                                <% } %>
+                        </select>
+                    </div>
+
+        <% } %>
+      </div>
+      </div>
+        <% }%>
+
+        <% }else if(mType==5){ //직선단계%>
+
+            <% if(required==true){%>
+              <div class="type5 form-group" style="border:2px solid #CC0000; border-radius:20px; padding:15px; background-color: #ffffff;">
+                      <label name='title' style="margin:10px"><%= formComponents[i].question %> <span style="color: #ff0000">*</span></label>
                       <div></div>
                       <%  var begin=formComponents[i].beginIndex %>
                       <%  var end=formComponents[i].endIndex %>
 
                       <label style="visibility: hidden; margin:10px" ><%= formComponents[i].beingLabel %></label>
-                      <% for(var j=0;j<end-begin+1;j++){ %>
+                      <% for(var j=begin;j<=end;j++){ %>
                       <div class="form-check form-check-inline">
                           <label class="form-check-label" style="margin: 17px"><%=j %></label>
                           <!-- 밑에 라디오타입과 2px 마진이 차이나야 보기에 똑바르다. -->
@@ -149,127 +266,226 @@
                       <%} %>
                       <div></div>
                       <label style="margin:10px"><%= formComponents[i].beingLabel %></label>
-                      <% for(var j=0;j<end-begin+1;j++){ %>
+                      <% for(var j=begin;j<=end;j++){ %>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input required" style="margin: 15px" type="radio" name=<%= i  %> value=<%=j %>>
+                      </div>
+                      <%} %>
+                      <label style="margin:10px"><%= formComponents[i].endLabel %></label>
+              </div>
+            <% }else {%>
+              <div class="type5 form-group" style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
+                      <label name='title' style="margin:10px"><%= formComponents[i].question  %></label>
+                      <div></div>
+                      <%  var begin=formComponents[i].beginIndex %>
+                      <%  var end=formComponents[i].endIndex %>
+
+                      <label style="visibility: hidden; margin:10px" ><%= formComponents[i].beingLabel %></label>
+                      <% for(var j=begin;j<=end;j++){ %>
+                      <div class="form-check form-check-inline">
+                          <label class="form-check-label" style="margin: 17px"><%=j %></label>
+                          <!-- 밑에 라디오타입과 2px 마진이 차이나야 보기에 똑바르다. -->
+                      </div>
+                      <%} %>
+                      <div></div>
+                      <label style="margin:10px"><%= formComponents[i].beingLabel %></label>
+                      <% for(var j=begin;j<=end;j++){ %>
                       <div class="form-check form-check-inline">
                           <input class="form-check-input" style="margin: 15px" type="radio" name=<%= i  %> value=<%=j %>>
                       </div>
                       <%} %>
                       <label style="margin:10px"><%= formComponents[i].endLabel %></label>
-                  </div>
-              <% } else if(mType==6||mType==7){%>
-                    <%  var colArray=formComponents[i].addedColOption %>
-                    <%  var rowArray=formComponents[i].addedRowOption %>
-                    <div class="type67 form-group" style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
-                        <label name='title' style="margin:10px"><%= formComponents[i].question  %></label>
-                        <div></div>
-                        <table class="table table-borderless">
-                            <thead>
-                                <tr >
-                                    <th scope="col" width="20%"></th>
-                                    <% for(var j=0;j<colArray.length;j++){ %>
-                                        <th class="text-center" scope="col" ><%=colArray[j] %></th>
-                                        <!-- 부트스트랩 때문에 align="center" 안먹힘 th,td 등에서 -->
-                                    <% } %>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% for(var j=0;j<rowArray.length;j++){ %>
-                                    <tr >
-                                        <!-- <th scope="row"><%= j+1%></th> -->
-                                        <th scope="row" width="20%"><%=rowArray[j] %></th>
-                                        <% for(var k=0;k<colArray.length;k++){ %>
-                                            <td class="text-center" align="center">
-                                                <div class="form-check form-check-inline" >
-                                                <!-- 아무노래아무노래 -->
-                                                  <% if(mType==6){%>
-                                                    <%# 객관식그리드 %>
-                                                    <input class="form-check-input grid" type="radio" name=<%=i %><%='-' %><%=j %> value=<%=k %>>
-                                                  <%} else if(mType==7){%>
-                                                    <%# 체크박스그리드 %>
-                                                    <input class="form-check-input grid" type="checkbox" name=<%=i %><%='-' %><%=j %> value=<%=k %>>
-                                                  <% } %>
-                                                </div>
-                                            </td>
-                                        <% } %>
-                                    </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                <% } else if(mType==8){%>
-                        <!-- 날짜-->
-                        <div class="type8 form-group" style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
-                                <label ><%= formComponents[i].question  %></label>
-                                <input type="text" class="form-control" id="datepicker" style="width: 120px" name=<%=i %> readonly>
-                        </div>
+              </div>
 
-                <% } else if(mType==9){%>
-                    <!-- 시간-->
-                    <div class="type9 form-group" style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
-                            <label><%= formComponents[i].question  %></label>
-                            <input type="text" class="form-control" id="timepicker" width="120" name=<%=i %> readonly>
-                            <!-- style="width: 100px" 안먹힌다. bootstrap4 lib 을 써서 그런가보다 -->
-                            <!-- style="display:none" -->
-                    </div>
+            <% }%>
 
-                <% } else if(mType==10){%>
-                  <!-- 섹션헤더-->
+            <% }else if(mType==6||mType==7){ %>
+              <%  var colArray=formComponents[i].addedColOption
+                  var rowArray=formComponents[i].addedRowOption
+              %>
 
-                          <div class="type10 form-group" style="border :2px solid #00BFFF;border-radius: 20px;padding: 15px; background:#2c81e2">
-                              <div>
-                                  <label style="color: aliceblue"><%= formComponents[i].question  %></label>
-                              </div>
-                              <div>
-                                  <label style="color: aliceblue"><%= formComponents[i].description  %></label>
-                              </div>
-                              <input type="text" style="display:none" name=<%=i %> value="section" readonly >
+              <% if(required==true){%>
+
+
+                <div class="type67 form-group" style="border:2px solid #CC0000; border-radius:20px; padding:15px; background-color: #ffffff;">
+                          <label name='title' style="margin:10px"><%= formComponents[i].question  %> <span style="color: #ff0000">*</span></label>
+                          <div></div>
+                          <table class="table table-borderless">
+                              <thead>
+                                  <tr >
+                                    <!-- width="20%" -->
+                                      <th scope="col" class="text-center" ></th>
+                                      <% for(var j=0;j<colArray.length;j++){ %>
+                                          <th class="text-center" scope="col" ><%=colArray[j] %></th>
+                                          <!-- 부트스트랩 때문에 align="center" 안먹힘 th,td 등에서 -->
+                                      <% } %>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <% for(var j=0;j<rowArray.length;j++){ %>
+                                      <tr >
+                                          <!-- <th scope="row"><%= j+1%></th> -->
+                                          <th scope="row" width="20%"><%=rowArray[j] %></th>
+                                          <% for(var k=0;k<colArray.length;k++){ %>
+                                              <td class="text-center" align="center">
+                                                  <div class="form-check form-check-inline grid" >
+                                                  <!-- 아무노래아무노래 -->
+                                                    <% if(mType==6){%>
+                                                      <%# 객관식그리드 %>
+                                                      <input class="form-check-input required" type="radio" name=<%=i %><%='-' %><%=j %> value=<%=k %>>
+                                                    <%} else if(mType==7){%>
+                                                      <%# 체크박스그리드 %>
+                                                      <input class="form-check-input required" type="checkbox" name=<%=i %><%='-' %><%=j %> value=<%=k %>>
+                                                    <% } %>
+                                                  </div>
+                                              </td>
+                                          <% } %>
+                                      </tr>
+                                  <% } %>
+                              </tbody>
+                          </table>
+                      </div>
+
+              <% }else {%>
+
+
+                <div class="type67 form-group" style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
+                          <label name='title' style="margin:10px"><%= formComponents[i].question  %></label>
+                          <div></div>
+                          <table class="table table-borderless">
+                              <thead>
+                                  <tr >
+                                    <th scope="col" class="text-center" ></th>
+                                      <% for(var j=0;j<colArray.length;j++){ %>
+                                          <th class="text-center" scope="col" ><%=colArray[j] %></th>
+                                          <!-- 부트스트랩 때문에 align="center" 안먹힘 th,td 등에서 -->
+                                      <% } %>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <% for(var j=0;j<rowArray.length;j++){ %>
+                                      <tr >
+                                          <!-- <th scope="row"><%= j+1%></th> -->
+                                          <th scope="row" width="20%"><%=rowArray[j] %></th>
+                                          <% for(var k=0;k<colArray.length;k++){ %>
+                                              <td class="text-center" align="center">
+                                                  <div class="form-check form-check-inline" >
+                                                  <!-- 아무노래아무노래 -->
+                                                    <% if(mType==6){%>
+                                                      <%# 객관식그리드 %>
+                                                      <input class="form-radio-input-grid" type="radio" name=<%=i %><%='-' %><%=j %> value=<%=k %>>
+                                                    <%} else if(mType==7){%>
+                                                      <%# 체크박스그리드 %>
+                                                      <input class="form-check-input-grid" type="checkbox" name=<%=i %><%='-' %><%=j %> value=<%=k %>>
+                                                    <% } %>
+                                                  </div>
+                                              </td>
+                                          <% } %>
+                                      </tr>
+                                  <% } %>
+                              </tbody>
+                          </table>
+                      </div>
+
+              <% }%>
+
+              <% } else if(mType==8){ // 날짜%>
+
+
+                        <% if(required==true){%>
+
+                          <div class="type8 form-group" style="border:2px solid #CC0000; border-radius:20px; padding:15px; background-color: #ffffff;">
+                                  <label ><%= formComponents[i].question  %> <span style="color: #ff0000">*</span></label>
+                                  <input type="text" class="form-control required" id="datepicker" style="width: 120px" name=<%=i %> readonly>
                           </div>
+                        <% }else {%>
+                          <div class="type8 form-group" style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
+                                  <label ><%= formComponents[i].question  %></label>
+                                  <input type="text" class="form-control" id="datepicker" style="width: 120px" name=<%=i %> readonly>
+                          </div>
+                        <% }%>
 
-                    <% } else if(mType==11){%>
-                        <!-- 설명추가-->
-                        <div class="type11 form-group" style="border :2px solid #00BFFF;border-radius: 20px;padding: 15px; background: azure">
+                <% } else if(mType==9){ //시간%>
 
-                                <div>
-                                    <label ><%= formComponents[i].question  %></label>
-                                </div>
-                                <div>
-                                    <label ><%= formComponents[i].description  %></label>
-                                </div>
-                                <input type="text" style="display:none" name=<%=i %> value="subtext" readonly >
-                                <!-- style="color: aliceblue" text가 잘 안보여서 임시로 바꾸어 놓았습니다. -->
+
+
+                    <% if(required==true){%>
+                      <div class="type9 form-group" style="border:2px solid #CC0000; border-radius:20px; padding:15px; background-color: #ffffff;">
+                              <label><%= formComponents[i].question  %> <span style="color: #ff0000">*</span></label>
+                              <input type="text" class="form-control required" id="timepicker" width="120" name=<%=i %> readonly>
+                              <!-- style="width: 100px" 안먹힌다. bootstrap4 lib 을 써서 그런가보다 -->
+                              <!-- style="display:none" -->
+                      </div>
+                      <% }else {%>
+                        <div class="type9 form-group" style="border:2px solid #00BFFF; border-radius:20px; padding:15px; background-color: #ffffff;">
+                                <label><%= formComponents[i].question  %></label>
+                                <input type="text" class="form-control" id="timepicker" width="120" name=<%=i %> readonly>
+                                <!-- style="width: 100px" 안먹힌다. bootstrap4 lib 을 써서 그런가보다 -->
+                                <!-- style="display:none" -->
                         </div>
-                        <% } else if(mType==12){ %>
-                          <!--이미지-->
-                            <div class="type12 form-group">
-                                <div style="border :2px solid #00BFFF;border-radius: 20px;padding: 15px; background-color: #ffffff;">
-                                    <div>
-                                        <label name='title'><%= formComponents[i].question  %></label>
-                                    </div>
-                                    <!-- save folder 의 사진들을 부르는거임
-                                    app.use(express.static(__dirname + '/save')) 때문에 가능 -->
-                                    <div>
-                                        <%
-                      //console.log("else if(mType==12) - user_email = ",user_email)
-                      //console.log("else if(mType==12) - form_id = ",form_id)
+                      <% }%>
 
-                      var splitArray = formComponents[i].real_file_data.split('/')
-                      var len = splitArray.length;
-                      //console.log("else if(mType==12) - splitArray = ",splitArray)
-                      //console.log("else if(mType==12) - splitArray[len-1] = ",splitArray[len-1])
 
-                      var splitFileExtension = splitArray[len-1].split('.')
-                      var filenamefolder = splitFileExtension[0]
-                      //console.log("else if(mType==12) - splitFileExtension = ",splitFileExtension)
-                      //console.log("else if(mType==12) - filenamefolder = ",filenamefolder)
 
-                                        %>
-                                        <!-- 맨앞에 '/' 빼먹으면 이미지 못불러옵니다. -->
-                                        <img src="/images/<%= user_email %>/<%= form_id %>/<%= filenamefolder %>/<%= splitArray[len-1] %>" width="400" height="400">
-                                    </div>
-                                <input type="text" style="display:none" name=<%=i %> value="image" readonly >
-                                </div>
+
+            <% } else if(mType==10){%>
+                <!-- 섹션헤더-->
+
+                        <div class="type10 form-group" style="border :2px solid #00BFFF;border-radius: 20px;padding: 15px; background:#2c81e2">
+                            <div>
+                                <label style="color: aliceblue"><%= formComponents[i].question  %></label>
                             </div>
-                        <% } %>
+                            <div>
+                                <label style="color: aliceblue"><%= formComponents[i].description  %></label>
+                            </div>
+                            <input type="text" style="display:none" name=<%=i %> value="section" readonly >
+                        </div>
+
+                  <% } else if(mType==11){%>
+                      <!-- 설명추가-->
+                      <div class="type11 form-group" style="border :2px solid #00BFFF;border-radius: 20px;padding: 15px; background: azure">
+
+                              <div>
+                                  <label ><%= formComponents[i].question  %></label>
+                              </div>
+                              <div>
+                                  <label ><%= formComponents[i].description  %></label>
+                              </div>
+                              <input type="text" style="display:none" name=<%=i %> value="subtext" readonly >
+                              <!-- style="color: aliceblue" text가 잘 안보여서 임시로 바꾸어 놓았습니다. -->
+                      </div>
+                      <% } else if(mType==12){ %>
+                        <!--이미지-->
+                          <div class="type12 form-group">
+                              <div style="border :2px solid #00BFFF;border-radius: 20px;padding: 15px; background-color: #ffffff;">
+                                  <div>
+                                      <label name='title'><%= formComponents[i].question  %></label>
+                                  </div>
+                                  <!-- save folder 의 사진들을 부르는거임
+                                  app.use(express.static(__dirname + '/save')) 때문에 가능 -->
+                                  <div>
+                                      <%
+                    //console.log("else if(mType==12) - user_email = ",user_email)
+                    //console.log("else if(mType==12) - form_id = ",form_id)
+
+                    var splitArray = formComponents[i].real_file_data.split('/')
+                    var len = splitArray.length;
+                    //console.log("else if(mType==12) - splitArray = ",splitArray)
+                    //console.log("else if(mType==12) - splitArray[len-1] = ",splitArray[len-1])
+
+                    var splitFileExtension = splitArray[len-1].split('.')
+                    var filenamefolder = splitFileExtension[0]
+                    //console.log("else if(mType==12) - splitFileExtension = ",splitFileExtension)
+                    //console.log("else if(mType==12) - filenamefolder = ",filenamefolder)
+
+                                      %>
+                                      <!-- 맨앞에 '/' 빼먹으면 이미지 못불러옵니다. -->
+                                      <img src="/images/<%= user_email %>/<%= form_id %>/<%= filenamefolder %>/<%= splitArray[len-1] %>" width="400" height="400">
+                                  </div>
+                              <input type="text" style="display:none" name=<%=i %> value="image" readonly >
+                              </div>
+                          </div>
+                      <% } %>
 
 
 
@@ -305,8 +521,6 @@
 
 
     <body>
-
-
 
         <!-- <div id="content">
                 <nav class="navbar navbar-light bg-light">
@@ -364,150 +578,295 @@
                 background-color: transparent;
               }
                 </style>
-        <script type="text/javascript">
-        var sectionCount = 0 // 전체 페이지 개수,0 페이지부터 편의상 시작
-        var eachPageitemCount = 0 // 각 페이지의 항목 개수
 
-        var CursectionIndex = 0 // 현재 페이지 인덱스
-        //var PresectionIndex = CursectionIndex-1 // previous page index
+                <script type="text/javascript">
+                      var sectionCount = 0 // 전체 페이지 개수,0 페이지부터 편의상 시작
+                      var eachPageitemCount = 0 // 각 페이지의 항목 개수
+                      var CursectionIndex = 0 // 현재 페이지 인덱스
+                      var itemCount = 1 // 현재 페이지 까지의 설문항목 개수, form_id ,userEmail 포함
+                      var mapPage = new Map()
 
-        //var Islastpage = false
-        //var Isfirstpage = true
+                      var Childrens = $("#result").children();
+                      // console.log("javascript - Childrens length = ",Childrens.length)
 
-        var itemCount = 1 // 현재 페이지 까지의 설문항목 개수, form_id ,userEmail 포함
+                      function makePageMap() {
 
-        var mapPage = new Map()
+                        // var items = $("#result").children();
 
-        function makePageMap() {
+                        for (var i = 1; i < Childrens.length; i++) { // i==0 form_id ,userEmail pass
 
-          var items = $("#result").children();
+                            var class_name = $(Childrens[i]).attr('class').split(' ')[0];
+                          //console.log("makePageMap - class_name=",class_name)
 
-          for (var i = 1; i < items.length; i++) { // i==0 form_id ,userEmail pass
+                          if(class_name=="type10"){
+                            mapPage.set(sectionCount,eachPageitemCount)
+                            sectionCount++
+                            eachPageitemCount=0
+                          } else {
+                            eachPageitemCount++
+                            if(i==Childrens.length-1){
+                              mapPage.set(sectionCount,eachPageitemCount)
+                            }
+                          }
 
-              var class_name = $(items[i]).attr('class').split(' ')[0];
-            //console.log("makePageMap - class_name=",class_name)
+                      }
+                      // console.log("makePageMap - sectionCount=",sectionCount)
+                      // console.log("makePageMap - mapPage=",mapPage)
+                    }   // makePageMap 끝
+                    function get_itemCount(){
+                              itemCount = 1
+                                console.log("첫 itemCount = ",itemCount)
+                                for(var k=0;k<CursectionIndex;k++){
+                                  console.log("mapPage get ",k," = ",mapPage.get(k))
 
-            if(class_name=="type10"){
-              mapPage.set(sectionCount,eachPageitemCount)
-              sectionCount++
-              eachPageitemCount=0
-            } else {
-              eachPageitemCount++
-              if(i==items.length-1){
-                mapPage.set(sectionCount,eachPageitemCount)
-              }
-            }
+                                  if(k ==0){
+                                    itemCount += mapPage.get(k)
+                                  }else{
+                                    // section header 포함,1
+                                    itemCount += mapPage.get(k)+1
+                                  }
 
-        }
-        console.log("makePageMap - sectionCount=",sectionCount)
-        console.log("makePageMap - mapPage=",mapPage)
-      }   // makePageMap 끝
-      function get_itemCount(){
-                itemCount = 1
-                  console.log("첫 itemCount = ",itemCount)
-                  for(var k=0;k<CursectionIndex;k++){
-                    console.log("mapPage get ",k," = ",mapPage.get(k))
+                                }
+                                console.log("후 itemCount = ",itemCount)
+                    }  // get_iterCount 끝
+                    function ShowHide_PageItems(from,to){
+                              // var Childrens = $("#result").children();
+                              for (var i = 1; i < Childrens.length; i++) { // i==0 form_id ,userEmail pass
 
-                    if(k ==0){
-                      itemCount += mapPage.get(k)
-                    }else{
-                      // section header 포함,1
-                      itemCount += mapPage.get(k)+1
-                    }
+                                  if(from<= i && i <= to){
+                                    // $(Childrens[i]).css("visibility", "visible");
+                                    $(Childrens[i]).show();
+                                  }else{
+                                    //$(Childrens[i]).css("visibility", "hidden");
+                                    $(Childrens[i]).hide();
+                                  }
+                                  //console.log("Childrens[",i,"] = ",Childrens[i])
+                              }
 
+                            if(sectionCount ==0){
+                              $("#divbefo").hide();
+                              $("#divnext").hide();
+                              $("#divsubmit").show();
+                            }else{
+                              if(CursectionIndex==0 ){ // 첫 페이지
+                                $("#divbefo").hide();
+                                $("#divnext").show();
+                                $("#divsubmit").hide();
+                              }else if(0 < CursectionIndex && CursectionIndex < sectionCount){ // 중간페이지
+                                $("#divbefo").show();
+                                $("#divnext").show();
+                                $("#divsubmit").hide();
+                              }else if(CursectionIndex == sectionCount ){ // last page
+                                $("#divbefo").show();
+                                $("#divnext").hide();
+                                $("#divsubmit").show();
+                              }
+                            }
+
+                  }  // ShowHide_PageItems 끝
+
+                  window.onload=function(){
+                          makePageMap();
+                          ShowHide_PageItems(1,mapPage.get(CursectionIndex));
                   }
-                  console.log("후 itemCount = ",itemCount)
-      }  // get_iterCount 끝
-      function ShowHide_PageItems(from,to){
-                var Childrens = $("#result").children();
-                for (var i = 1; i < Childrens.length; i++) { // i==0 form_id ,userEmail pass
 
-                    if(from<= i && i <= to){
-                      // $(Childrens[i]).css("visibility", "visible");
-                      $(Childrens[i]).show();
+                $('#timepicker').timepicker({
+                  uiLibrary: 'bootstrap4'
+                });
+                $('#datepicker').datepicker({
+                    weekStart: 0,
+                    autoclose: true,
+                    todayHighlight: true,
+                    // language : "ko", // 한글화 적용안됨
+                    format: "yyyy/mm/dd"
+
+                });
+                //$('#datepicker').datepicker("setDate", new Date());
+
+                $('#submit').click(function(){
+                      //console.log("javascript - submit 클릭");
+                      // var date = $('#datepicker').datepicker().val();
+                      // console.log("javascript - date = ",date);
+                      // var time = $('#timepicker').val();
+                      // console.log("javascript - time = ",time);
+
+                      var filled = true // 필수항목 체크
+                      // true -> false 로 해야만 함
+
+
+
+
+                      // var fglen = $('.form-group').length;
+                      // console.log("javascript - fglen = ",fglen)
+
+
+                        for (var i = 1; i < Childrens.length; i++) { // 이메일 폼id skip
+
+                              var class_name = $(Childrens[i]).attr('class').split(' ')[0];
+                              console.log("submit - class_name=",class_name)
+                              var inputTagNum=0;
+                              var inputTagUnCheckedCount=0;
+
+                              if(class_name=="type23" || class_name=="type5" ){
+                                // input tag 개수를 구함,체크여부 파악을 위해
+                                 inputTagNum = $(Childrens[i]).find(".required").length
+                                console.log("submit type23,type5- inputTagNum = ",inputTagNum)
+
+
+                              }else if(class_name=="type4"){
+
+                                var selectTag = $(Childrens[i]).find("select")
+                                console.log("submit type4 - selectTag = ",selectTag)
+                                // var optionNum = $(Childrens[i]).find("option").length
+                                // console.log("submit type4 - optionNum = ",optionNum)
+
+                                $(selectTag).children().each(function(index, item) {
+                                        console.log("submit type4 - index/item = ",index,"/",$(item).val());
+                                        var class_required = $(item).parent().attr('class').split(' ')[1];
+                                        // console.log("submit type4 - class_required = ",class_required)
+                                        if ($(item).prop("selected") == true && index ==0 && class_required == "required")  {
+                                          // 0번째가 선택되어 있다면 선택을 안한것이므로 fail
+                                          console.log("submit type4 - no , item =",$(item).val())
+                                          filled =false
+                                        }
+                                  });
+
+                              }else if(class_name=="type67"){
+
+                                // var rowInputTagNum = $(Childrens[i]).find(".required").length
+                                // var rowInputTagNum = $(Childrens[i]).find(".grid").length
+                                var colNum = $(Childrens[i]).find("thead tr").children().length
+                                // var rowNum = $(Childrens[i]).find("tbody").children().length
+                                // console.log("submit type67 - colNum = ",colNum)
+                                // console.log("submit type67 - rowNum = ",rowNum)
+                                var gridinputTagUnCheckedCount=0;
+                                // var cols = $(Childrens[i]).find("thead tr").children()
+                                var rows = $(Childrens[i]).find("tbody").children()
+                                // console.log("submit type67 - cols = ",cols)
+                                // console.log("submit type67 - rows = ",rows)
+
+                                // $(cols).each(function(index, item) {
+                                //         console.log("submit type67 cols- index/item = ",index,"/",item);
+
+                                //
+
+                                //   });
+
+
+                                // for (var i = 1; i < colNum; i++) {
+                                //
+                                //
+                                // }
+                                $(rows).each(function(index, rowitem) {
+                                    // console.log("submit type67 rows- index/rowitem = ",index,"/",rowitem);
+                                    $(rowitem).children().each(function(index2, colitem) {
+                                            // console.log("submit type67 rows rows - index2/colitem = ",index2,"/",colitem);
+
+                                            if(index2!=0){
+                                              var inputTags = $(colitem).find("input")
+                                              // var class_required = $(colitem).find("input").attr('class').split(' ')[1];
+                                              var class_required = $(inputTags).attr('class').split(' ')[1];
+                                              console.log("submit type67 - class_required = ",class_required)
+
+                                              // if($(colitem).prop('checked') == false && class_required == "required"){
+                                              if($(inputTags).prop('checked') == false && class_required == "required"){
+                                                // 각 행에 아무것도 체크를 안했다면 fail
+
+                                                 gridinputTagUnCheckedCount++;
+                                                // console.log("submit type67 rows rows - index2/gridinputTagUnCheckedCount = ",index2,"/",gridinputTagUnCheckedCount);
+                                                if(gridinputTagUnCheckedCount == colNum-1){ //- 1 공간만 차지하는거 제외
+                                                  filled = false;
+                                                  // console.log("submit type67 rows rows- UnChecked / 총개수 = ",gridinputTagUnCheckedCount,"/",colNum-1);
+                                                  console.log("submit type67 rows rows- fail index = ",index)
+                                                }
+                                              }
+                                            }
+                                    });
+                                    gridinputTagUnCheckedCount = 0
+                                });
+
+
+
+                              }
+
+                              if(class_name=="type0" || class_name=="type1" || class_name=="type8" || class_name=="type9"
+                                || class_name=="type23"||class_name=="type5"){
+
+                                  $('.form-group :input[name='+(i-1)+']').each(function (index, item) {
+                                     // console.log("submit - index/item = ",index,"/",item);
+                                      //console.log("submit - form-group :input each -passed "); // 1번은 지나가네
+                                     var class_required = $(item).attr('class').split(' ')[1];
+                                     console.log("submit 0- class_required = ",class_required);
+                                     console.log("submit 0- $(item).val() = ",$(item).val());
+
+                                     if(class_required == "required"){
+
+                                       if($(item).prop('checked') == false && (class_name=="type23"||class_name=="type5")){
+                                         // 아무것도 체크를 안했다면 fail
+                                         //var IsChecked = $(item).prop('checked');
+                                         //console.log("submit - index/checked = ",index,"/",checked);
+                                          inputTagUnCheckedCount++;
+                                          //console.log("submit 1- type234 $(item).val() = ",$(item).val()); // button의 text값
+                                         if(inputTagUnCheckedCount == inputTagNum){
+                                           filled = false;
+                                           console.log("submit 1- UnChecked / 총개수 = ",inputTagUnCheckedCount,"/",inputTagNum);
+                                         }
+                                       }
+
+                                       if($.trim( $(item).val()) == '' && (class_name=="type0" || class_name=="type1" ||
+                                                                           class_name=="type8" || class_name=="type9")){
+                                          // 단답형,장문형,날짜,시간 아무것도 입력안되어 있으면 fail
+                                         filled = false;
+                                         console.log("submit 2- fill out ! = ",$.trim( $(item).val()).length);
+                                       }
+
+
+                                     }
+
+
+                                   });
+                              }
+
+
+                        }
+
+
+                        if(filled){
+                                    $('#result').submit();
+                                     console.log("ok");
+                        }else{
+                          alert("필수 항목들은 작성해 주세요.");
+                          console.log("fail");
+                        }
+
+                })
+                function befoBtnOnFunc(){
+                    //console.log("befoBtnOnFunc - befo page");
+                    // console.log("type0 index = ",$('.type0').index());
+                    // console.log("type0 length = ",$('.type0').length);
+                    CursectionIndex--;
+                    get_itemCount()
+                    console.log("befoBtnOnFunc - CursectionIndex=",CursectionIndex)
+
+                    if(CursectionIndex ==0){
+                      ShowHide_PageItems(itemCount,itemCount);
                     }else{
-                      //$(Childrens[i]).css("visibility", "hidden");
-                      $(Childrens[i]).hide();
+                      ShowHide_PageItems(itemCount,itemCount+mapPage.get(CursectionIndex));
                     }
-                    //console.log("Childrens[",i,"] = ",Childrens[i])
                 }
 
-              if(sectionCount ==0){
-                $("#divbefo").hide();
-                $("#divnext").hide();
-                $("#divsubmit").show();
-              }else{
-                if(CursectionIndex==0 ){ // 첫 페이지
-                  $("#divbefo").hide();
-                  $("#divnext").show();
-                  $("#divsubmit").hide();
-                }else if(0 < CursectionIndex && CursectionIndex < sectionCount){ // 중간페이지
-                  $("#divbefo").show();
-                  $("#divnext").show();
-                  $("#divsubmit").hide();
-                }else if(CursectionIndex == sectionCount ){ // last page
-                  $("#divbefo").show();
-                  $("#divnext").hide();
-                  $("#divsubmit").show();
+                function nextBtnOnFunc(){
+                    //console.log("nextBtnOnFunc - next page");
+                    CursectionIndex++;
+                    get_itemCount()
+                    console.log("nextBtnOnFunc - CursectionIndex=",CursectionIndex)
+                    ShowHide_PageItems(itemCount,itemCount+mapPage.get(CursectionIndex));
+
                 }
-              }
 
-    }  // ShowHide_PageItems 끝
-
-    window.onload=function(){
-            makePageMap();
-            ShowHide_PageItems(1,mapPage.get(CursectionIndex));
+                </script>
 
 
-
-  }
-
-  $('#timepicker').timepicker({
-    uiLibrary: 'bootstrap4'
-  });
-  $('#datepicker').datepicker({
-      weekStart: 0,
-      autoclose: true,
-      todayHighlight: true,
-      // language : "ko", // 한글화 적용안됨
-      format: "yyyy/mm/dd"
-
-  });
-  //$('#datepicker').datepicker("setDate", new Date());
-
-  $('#submit').click(function(){
-        //console.log("javascript - submit 클릭");
-        var date = $('#datepicker').datepicker().val();
-        console.log("javascript - date = ",date);
-        var time = $('#timepicker').val();
-        console.log("javascript - time = ",time);
-
-        $('#result').submit();
-  })
-  function befoBtnOnFunc(){
-      //console.log("befoBtnOnFunc - befo page");
-      // console.log("type0 index = ",$('.type0').index());
-      // console.log("type0 length = ",$('.type0').length);
-      CursectionIndex--;
-      get_itemCount()
-      console.log("befoBtnOnFunc - CursectionIndex=",CursectionIndex)
-
-      if(CursectionIndex ==0){
-        ShowHide_PageItems(itemCount,itemCount);
-      }else{
-        ShowHide_PageItems(itemCount,itemCount+mapPage.get(CursectionIndex));
-      }
-  }
-
-  function nextBtnOnFunc(){
-      //console.log("nextBtnOnFunc - next page");
-      CursectionIndex++;
-      get_itemCount()
-      console.log("nextBtnOnFunc - CursectionIndex=",CursectionIndex)
-      ShowHide_PageItems(itemCount,itemCount+mapPage.get(CursectionIndex));
-
-  }
-        </script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
           <!-- Popper.JS -->
           <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
