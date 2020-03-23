@@ -24,9 +24,7 @@
 <% if(formComponents !== null){ %>
 <%  for(var i=0;i<formComponents.length;i++){ %>
 <%    var mType=formComponents[i].type %>
-<%    var required=formComponents[i].required_switch // boolean
-    //console.log("typeof required = ", typeof required)
-%>
+<%    var required=formComponents[i].required_switch // boolean %>
 
 
 
@@ -92,7 +90,7 @@
 
                 <div class="form-check" style="margin:10px">
                   <!-- name 이 같아야 같은 radio 그룹이 되네,, -->
-                    <input class="form-check-input required" type="radio" id="<%=i%>radio<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
+                    <input class="form-check-input required" type="radio" id="<%=i%>radio<%=j%>" name=<%= i %> value=<%= jsonArray[j] %>>
                     <label class="form-check-label" for="<%=i%>radio<%=j%>">
                             <%= jsonArray[j] %>
                     </label>
@@ -100,9 +98,9 @@
                 <% } %>
               <% if(etc !== false){ %>
                 <div class="form-check" style="margin:10px">
-                    <input class="form-check-input" type="radio" id="<%=i%>radio<%=len%>"  >
+                    <input class="form-check-input" type="radio" id="<%=i%>radio<%=len%>" name=<%= i %> value="">
                     <label class="form-check-label" for="<%=i%>radio<%=len%>"> 기타: </label>
-                    <input class="form-radio-etc required" type="text"  name=<%= i  %> size="50" />
+                    <input class="form-radio-etc required" type="text"  name=<%= i %> size="50" />
                 </div>
 
                 <% } %>
@@ -111,7 +109,7 @@
                 <%# 체크박스 %>
                   <% for(var j=0;j<jsonArray.length;j++){ %>
                       <div class="form-check" style="margin:10px">
-                          <input class="form-check-input required" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
+                          <input class="form-check-input required" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i %> value=<%= jsonArray[j] %>>
                           <label class="form-check-label" for="<%=i%>check<%=j%>">
                                   <%= jsonArray[j] %>
                           </label>
@@ -119,9 +117,9 @@
                   <% } %>
                   <% if(etc !== false){ %>
                     <div class="form-check" style="margin:10px">
-                        <input class="form-check-input" type="checkbox" id="<%=i%>check<%=len%>" >
+                        <input class="form-check-input" type="checkbox" id="<%=i%>check<%=len%>" name=<%= i %> value="">
                         <label class="form-check-label" for="<%=i%>check<%=len%>"> 기타: </label>
-                        <input type="text" class="form-check-etc required" name=<%= i  %> size="50" />
+                        <input type="text" class="form-check-etc required" name=<%= i %> size="50" />
                     </div>
 
                     <% } %>
@@ -133,8 +131,6 @@
 
         </div>
     </div>
-
-
 
     <% }else {%>
 
@@ -155,7 +151,7 @@
 
             <div class="form-check" style="margin:10px">
               <!-- name 이 같아야 같은 radio 그룹이 되네,, -->
-                <input class="form-check-input" type="radio" id="<%=i%>radio<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
+                <input class="form-check-input" type="radio" id="<%=i%>radio<%=j%>" name=<%= i %> value=<%= jsonArray[j] %>>
                 <label class="form-check-label" for="<%=i%>radio<%=j%>">
                         <%= jsonArray[j] %>
                 </label>
@@ -163,9 +159,9 @@
             <% } %>
           <% if(etc !== false){ %>
             <div class="form-check" style="margin:10px">
-                <input class="form-check-input" type="radio" id="<%=i%>radio<%=len%>"  >
+                <input class="form-check-input" type="radio" id="<%=i%>radio<%=len%>" name=<%= i %> value="">
                 <label class="form-check-label" for="<%=i%>radio<%=len%>"> 기타: </label>
-                <input type="text" name=<%= i  %> size="50" />
+                <input type="text" class="form-radio-etc" name=<%= i %> size="50" />
             </div>
 
             <% } %>
@@ -176,7 +172,7 @@
               <%# 체크박스 %>
                 <% for(var j=0;j<jsonArray.length;j++){ %>
                     <div class="form-check" style="margin:10px">
-                        <input class="form-check-input" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i  %> value=<%= jsonArray[j] %>>
+                        <input class="form-check-input" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i %> value=<%= jsonArray[j] %>>
                         <label class="form-check-label" for="<%=i%>check<%=j%>">
                                 <%= jsonArray[j] %>
                         </label>
@@ -184,9 +180,9 @@
                 <% } %>
                 <% if(etc !== false){ %>
                   <div class="form-check" style="margin:10px">
-                      <input class="form-check-input" type="checkbox" id="<%=i%>check<%=len%>" >
+                      <input class="form-check-input" type="checkbox" id="<%=i%>check<%=len%>" name=<%= i %> value="">
                       <label class="form-check-label" for="<%=i%>check<%=len%>"> 기타: </label>
-                      <input type="text" name=<%= i  %> size="50" />
+                      <input type="text" class="form-check-etc" name=<%= i %> size="50" />
                   </div>
 
                   <% } %>
@@ -497,39 +493,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <body>
-
-        <!-- <div id="content">
-                <nav class="navbar navbar-light bg-light">
-                    <a class="navbar-brand">Form</a>
-                    <form class="form-inline">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">보내기</button>
-                    </form>
-                </nav>
-        </div> -->
 
         <div class="container" >
                   <div id="typeHead" style="border-top:10px groove #4169E1; padding: 10px; margin-bottom:10px; background-color: #ffffff;">
@@ -568,12 +532,12 @@
               margin:10px 0px 10px;
             }
 
-            .form-check-etc
-                {
-                    border: 0;
-                    border-bottom: 1px solid gray;
-                    outline: 0;
-                }
+            .form-check-etc ,.form-radio-etc
+            {
+                border: 0;
+                border-bottom: 1px solid gray;
+                outline: 0;
+            }
             #timepicker,#datepicker {
                 background-color: transparent;
               }
@@ -681,24 +645,15 @@
                     format: "yyyy/mm/dd"
 
                 });
-                //$('#datepicker').datepicker("setDate", new Date());
+                $( ".form-radio-etc,.form-check-etc" ).focus(function() {
+                  console.log("etc - got focus")
+                  $(this).prev().prev().prop("checked", true);
+                });
 
                 $('#submit').click(function(){
-                      //console.log("javascript - submit 클릭");
-                      // var date = $('#datepicker').datepicker().val();
-                      // console.log("javascript - date = ",date);
-                      // var time = $('#timepicker').val();
-                      // console.log("javascript - time = ",time);
 
                       var filled = true // 필수항목 체크
                       // true -> false 로 해야만 함
-
-
-
-
-                      // var fglen = $('.form-group').length;
-                      // console.log("javascript - fglen = ",fglen)
-
 
                         for (var i = 1; i < Childrens.length; i++) { // 이메일 폼id skip
 
@@ -733,30 +688,10 @@
 
                               }else if(class_name=="type67"){
 
-                                // var rowInputTagNum = $(Childrens[i]).find(".required").length
-                                // var rowInputTagNum = $(Childrens[i]).find(".grid").length
                                 var colNum = $(Childrens[i]).find("thead tr").children().length
-                                // var rowNum = $(Childrens[i]).find("tbody").children().length
-                                // console.log("submit type67 - colNum = ",colNum)
-                                // console.log("submit type67 - rowNum = ",rowNum)
                                 var gridinputTagUnCheckedCount=0;
-                                // var cols = $(Childrens[i]).find("thead tr").children()
                                 var rows = $(Childrens[i]).find("tbody").children()
-                                // console.log("submit type67 - cols = ",cols)
-                                // console.log("submit type67 - rows = ",rows)
 
-                                // $(cols).each(function(index, item) {
-                                //         console.log("submit type67 cols- index/item = ",index,"/",item);
-
-                                //
-
-                                //   });
-
-
-                                // for (var i = 1; i < colNum; i++) {
-                                //
-                                //
-                                // }
                                 $(rows).each(function(index, rowitem) {
                                     // console.log("submit type67 rows- index/rowitem = ",index,"/",rowitem);
                                     $(rowitem).children().each(function(index2, colitem) {
@@ -785,8 +720,6 @@
                                     gridinputTagUnCheckedCount = 0
                                 });
 
-
-
                               }
 
                               if(class_name=="type0" || class_name=="type1" || class_name=="type8" || class_name=="type9"
@@ -803,10 +736,7 @@
 
                                        if($(item).prop('checked') == false && (class_name=="type23"||class_name=="type5")){
                                          // 아무것도 체크를 안했다면 fail
-                                         //var IsChecked = $(item).prop('checked');
-                                         //console.log("submit - index/checked = ",index,"/",checked);
                                           inputTagUnCheckedCount++;
-                                          //console.log("submit 1- type234 $(item).val() = ",$(item).val()); // button의 text값
                                          if(inputTagUnCheckedCount == inputTagNum){
                                            filled = false;
                                            console.log("submit 1- UnChecked / 총개수 = ",inputTagUnCheckedCount,"/",inputTagNum);
@@ -820,7 +750,6 @@
                                          console.log("submit 2- fill out ! = ",$.trim( $(item).val()).length);
                                        }
 
-
                                      }
 
 
@@ -829,7 +758,14 @@
 
 
                         }
-
+                        $('.form-radio-etc,.form-check-etc').each(function (index, item) {
+                                  console.log("etc - index/item = ",index,"/",item);
+                                  var IsChecked = $(item).prev().prev().prop('checked');
+                                  console.log("etc - index/IsChecked = ",index,"/",IsChecked);
+                                  if(IsChecked==false){
+                                    $(item).val("");
+                                  }
+                        });
 
                         if(filled){
                                     $('#result').submit();
