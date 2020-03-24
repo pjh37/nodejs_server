@@ -454,25 +454,32 @@
                                   </div>
                                   <!-- save folder 의 사진들을 부르는거임
                                   app.use(express.static(__dirname + '/save')) 때문에 가능 -->
+                                  <%
+                                      if(formComponents[i].real_file_data != undefined){
+                              console.log("else if(mType==12) - formComponents[i].real_file_data = ",formComponents[i].real_file_data)
+                                  %>
                                   <div>
-                                      <%
-                    //console.log("else if(mType==12) - user_email = ",user_email)
-                    //console.log("else if(mType==12) - form_id = ",form_id)
+                        <%
+                            //console.log("else if(mType==12) - user_email = ",user_email)
+                            //console.log("else if(mType==12) - form_id = ",form_id)
 
-                    var splitArray = formComponents[i].real_file_data.split('/')
-                    var len = splitArray.length;
-                    //console.log("else if(mType==12) - splitArray = ",splitArray)
-                    //console.log("else if(mType==12) - splitArray[len-1] = ",splitArray[len-1])
+                            var splitArray = formComponents[i].real_file_data.split('/')
+                            var len = splitArray.length;
+                            //console.log("else if(mType==12) - splitArray = ",splitArray)
+                            //console.log("else if(mType==12) - splitArray[len-1] = ",splitArray[len-1])
 
-                    var splitFileExtension = splitArray[len-1].split('.')
-                    var filenamefolder = splitFileExtension[0]
-                    //console.log("else if(mType==12) - splitFileExtension = ",splitFileExtension)
-                    //console.log("else if(mType==12) - filenamefolder = ",filenamefolder)
+                            var splitFileExtension = splitArray[len-1].split('.')
+                            var filenamefolder = splitFileExtension[0]
+                            //console.log("else if(mType==12) - splitFileExtension = ",splitFileExtension)
+                            //console.log("else if(mType==12) - filenamefolder = ",filenamefolder)
 
-                                      %>
+                        %>
                                       <!-- 맨앞에 '/' 빼먹으면 이미지 못불러옵니다. -->
                                       <img src="/images/<%= user_email %>/<%= form_id %>/<%= filenamefolder %>/<%= splitArray[len-1] %>" width="400" height="400">
                                   </div>
+                                  <% } else{
+                                    console.log("else if(mType==12) - formComponents[i].real_file_data UNDEFINED")
+                                  }%>
                               <input type="text" style="display:none" name=<%=i %> value="image" readonly >
                               </div>
                           </div>
