@@ -17,13 +17,18 @@
 
 </head>
 
+
 <%
   function FormLoad() {
 %>
 <% if(formComponents !== null){ %>
 <%  for(var i=0;i<formComponents.length;i++){ %>
 <%    var mType=formComponents[i].type %>
-<%    var required=formComponents[i].required_switch // boolean %>
+<%    var required=formComponents[i].required_switch // boolean
+    //console.log("typeof required = ", typeof required)
+%>
+
+
 
 <% if(mType==0){ %>
       <%# 단답형 %>
@@ -31,6 +36,7 @@
     <div class="type0 form-group " >
       <div style="border :2px solid #CC0000; border-radius:20px; padding: 15px; background-color: #ffffff;">
         <label name='title'><%= formComponents[i].question  %> <span style="color: #ff0000">*</span> </label>
+        <!-- <textarea class="form-control" name=<%=i %> placeholder="한줄입력" rows="1"></textarea> -->
         <input type="text" class="form-control required" placeholder="한 줄입력" name=<%=i %> >
       </div>
     </div>
@@ -39,6 +45,7 @@
     <div class="type0 form-group" > <!-- 기본 div margin 을 이용하자 -->
       <div style="border :2px solid #00BFFF; border-radius:20px; padding: 15px; background-color: #ffffff;">
         <label name='title'><%= formComponents[i].question  %> </label>
+        <!-- <textarea class="form-control" name=<%=i %> placeholder="한줄입력" rows="1"></textarea> -->
         <input type="text" class="form-control" name=<%=i %> placeholder="한 줄입력">
       </div>
     </div>
@@ -85,7 +92,7 @@
 
                 <div class="form-check" style="margin:10px">
                   <!-- name 이 같아야 같은 radio 그룹이 되네,, -->
-                    <input class="form-check-input required" type="radio" id="<%=i%>radio<%=j%>" name=<%= i %> value=<%= jsonArray[j] %>>
+                    <input class="form-check-input required" type="radio" id="<%=i%>radio<%=j%>" name=<%= i %> value="<%= jsonArray[j] %>">
                     <label class="form-check-label" for="<%=i%>radio<%=j%>">
                             <%= jsonArray[j] %>
                     </label>
@@ -104,9 +111,9 @@
                 <%# 체크박스 %>
                   <% for(var j=0;j<jsonArray.length;j++){ %>
                       <div class="form-check" style="margin:10px">
-                          <input class="form-check-input required" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i %> value=<%= jsonArray[j] %>>
+                          <input class="form-check-input required" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i %> value="<%= jsonArray[j] %>">
                           <label class="form-check-label" for="<%=i%>check<%=j%>">
-                                  <%= jsonArray[j] %>
+                                  <%= jsonArray[j]%>
                           </label>
                       </div>
                   <% } %>
@@ -119,8 +126,6 @@
 
                     <% } %>
             <% } %>
-
-
 
     <% } %>
 
@@ -146,7 +151,7 @@
 
             <div class="form-check" style="margin:10px">
               <!-- name 이 같아야 같은 radio 그룹이 되네,, -->
-                <input class="form-check-input" type="radio" id="<%=i%>radio<%=j%>" name=<%= i %> value=<%= jsonArray[j] %>>
+                <input class="form-check-input" type="radio" id="<%=i%>radio<%=j%>" name=<%= i %> value="<%= jsonArray[j] %>">
                 <label class="form-check-label" for="<%=i%>radio<%=j%>">
                         <%= jsonArray[j] %>
                 </label>
@@ -158,16 +163,13 @@
                 <label class="form-check-label" for="<%=i%>radio<%=len%>"> 기타: </label>
                 <input type="text" class="form-radio-etc" name=<%= i %> size="50" />
             </div>
-
             <% } %>
-
-
 
         <% }else if(mType==3){ %>
               <%# 체크박스 %>
                 <% for(var j=0;j<jsonArray.length;j++){ %>
                     <div class="form-check" style="margin:10px">
-                        <input class="form-check-input" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i %> value=<%= jsonArray[j] %>>
+                        <input class="form-check-input" type="checkbox" id="<%=i%>check<%=j%>" name=<%= i %> value="<%= jsonArray[j] %>">
                         <label class="form-check-label" for="<%=i%>check<%=j%>">
                                 <%= jsonArray[j] %>
                         </label>
@@ -182,8 +184,6 @@
 
                   <% } %>
         <% }%>
-
-
 
     <% } %>
 
@@ -208,7 +208,8 @@
                           <!-- text길이에 맞춰서 유동적으로 select tag 길이가 바뀌는것이 좋겠슴. -->
                                 <option disabled selected hidden>선택</option>
                                 <% for(var j=0;j<jsonArray.length;j++){ %>
-                                    <option value=<%= jsonArray[j] %>><%= jsonArray[j] %></option>
+                                    <!-- <option value=<%#= jsonArray[j] %>><%= jsonArray[j] %></option> -->
+                                    <option value="<%= jsonArray[j] %>"><%= jsonArray[j] %></option>
                                 <% } %>
                         </select>
                     </div>
@@ -229,7 +230,7 @@
                           <!-- text길이에 맞춰서 유동적으로 select tag 길이가 바뀌는것이 좋겠슴. -->
                                 <option disabled selected hidden>선택</option>
                                 <% for(var j=0;j<jsonArray.length;j++){ %>
-                                    <option value=<%= jsonArray[j] %>><%= jsonArray[j] %></option>
+                                    <option value="<%= jsonArray[j] %>"><%= jsonArray[j] %></option>
                                 <% } %>
                         </select>
                     </div>
@@ -460,19 +461,10 @@
                                   %>
                                   <div>
                         <%
-                            //console.log("else if(mType==12) - user_email = ",user_email)
-                            //console.log("else if(mType==12) - form_id = ",form_id)
-
                             var splitArray = formComponents[i].real_file_data.split('/')
                             var len = splitArray.length;
-                            //console.log("else if(mType==12) - splitArray = ",splitArray)
-                            //console.log("else if(mType==12) - splitArray[len-1] = ",splitArray[len-1])
-
                             var splitFileExtension = splitArray[len-1].split('.')
                             var filenamefolder = splitFileExtension[0]
-                            //console.log("else if(mType==12) - splitFileExtension = ",splitFileExtension)
-                            //console.log("else if(mType==12) - filenamefolder = ",filenamefolder)
-
                         %>
                                       <!-- 맨앞에 '/' 빼먹으면 이미지 못불러옵니다. -->
                                       <img src="/images/<%= user_email %>/<%= form_id %>/<%= filenamefolder %>/<%= splitArray[len-1] %>" width="400" height="400">
@@ -553,16 +545,12 @@
                       var mapPage = new Map()
 
                       var Childrens = $("#result").children();
-                      // console.log("javascript - Childrens length = ",Childrens.length)
 
                       function makePageMap() {
-
-                        // var items = $("#result").children();
 
                         for (var i = 1; i < Childrens.length; i++) { // i==0 form_id ,userEmail pass
 
                             var class_name = $(Childrens[i]).attr('class').split(' ')[0];
-                          //console.log("makePageMap - class_name=",class_name)
 
                           if(class_name=="type10"){
                             mapPage.set(sectionCount,eachPageitemCount)
@@ -576,8 +564,6 @@
                           }
 
                       }
-                      // console.log("makePageMap - sectionCount=",sectionCount)
-                      // console.log("makePageMap - mapPage=",mapPage)
                     }   // makePageMap 끝
                     function get_itemCount(){
                               itemCount = 1

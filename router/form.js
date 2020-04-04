@@ -637,6 +637,35 @@ router.get('/individual/:form_id',function(req,res){
 
     });
 });
+router.get('/individualChart/:form_id',function(req,res){
+console.log("/individualChart/:form_id - called ");
+
+    var form_id=req.params.form_id;
+
+    var title;
+    var description;
+    var json;
+
+    var query='SELECT * FROM pjh1352.user WHERE _id=?';
+    var params=[form_id];
+    connection.query(query,params,function(err,rows,fields){
+        if(err){
+            console.log("/individualChart/:form_id - 데이터 select 오류");
+            res.status(404);
+        }else{
+
+            var jsonObject=new Object();
+            jsonObject.title=rows[0].title;
+            jsonObject.description=rows[0].description;
+            jsonObject.json=rows[0].json;
+
+            console.log("/individualChart/:form_id - jsonObject = ",jsonObject);
+
+            res.status(200).send(jsonObject);
+        }
+
+    });
+});
 
 router.post('/user/forms',function(req,res,next){
     var userEmail;
