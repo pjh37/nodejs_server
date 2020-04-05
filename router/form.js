@@ -3,7 +3,7 @@ const router = express.Router();
 const multiparty = require('multiparty');
 const mysql = require('mysql');
 const fs = require('fs');
-//const mkdirp=require('mkdirp');
+const mkdirp=require('mkdirp');
 const path=require('path');
 // const socket=require('socket.io');
 //require('date-utils');
@@ -22,14 +22,6 @@ connection.connect(function(err){
         console.log('mysql connected!!');
     }
 });
-//var socketIDs=new Array();
-/*
-io.sockets.on('connection',function(socket){
-    socket.on('login',function(data){
-        socketIDs[data.userEmail]=socket.id
-    })
-})
-*/
 
 
 router.post('/save',function(req,res,next){
@@ -45,7 +37,7 @@ router.post('/save',function(req,res,next){
     form.on('field',function(name,value){
         console.log('filed 들어옴');
         if(name=='json'){
-            //json=value;
+            json=value;
             var jsonObject=JSON.parse(json);
             userEmail=jsonObject.userEmail;
             title=jsonObject.title;
@@ -327,10 +319,10 @@ router.post('/user/draftForms', function(req, res, next) {
   var form = new multiparty.Form();
   form.parse(req);
   form.on('field', function(name, value) {
-    //console.log('/user/draftForms form.on(field) 들어옴');
+    console.log('/user/draftForms form.on(field) 들어옴');
     if (name == 'userEmail') {
       userEmail = value; // 이메일로 db를 불러온다
-      // console.log("value = ",value); // userEmail
+       console.log("value = "+userEmail); // userEmail
     }
   });
   form.on('close', function() {
@@ -638,36 +630,36 @@ router.get('/individual/:form_id',function(req,res){
     });
 });
 router.get('/individualChart/:form_id',function(req,res){
-console.log("/individualChart/:form_id - called ");
-
-    var form_id=req.params.form_id;
-
-    var title;
-    var description;
-    var json;
-
-    var query='SELECT * FROM pjh1352.user WHERE _id=?';
-    var params=[form_id];
-    connection.query(query,params,function(err,rows,fields){
-        if(err){
-            console.log("/individualChart/:form_id - 데이터 select 오류");
-            res.status(404);
-        }else{
-
-            var jsonObject=new Object();
-            jsonObject.title=rows[0].title;
-            jsonObject.description=rows[0].description;
-            jsonObject.json=rows[0].json;
-
-            console.log("/individualChart/:form_id - jsonObject = ",jsonObject);
-
-            res.status(200).send(jsonObject);
-        }
-
+    console.log("/individualChart/:form_id - called ");
+    
+        var form_id=req.params.form_id;
+    
+        var title;
+        var description;
+        var json;
+    
+        var query='SELECT * FROM pjh1352.user WHERE _id=?';
+        var params=[form_id];
+        connection.query(query,params,function(err,rows,fields){
+            if(err){
+                console.log("/individualChart/:form_id - 데이터 select 오류");
+                res.status(404);
+            }else{
+    
+                var jsonObject=new Object();
+                jsonObject.title=rows[0].title;
+                jsonObject.description=rows[0].description;
+                jsonObject.json=rows[0].json;
+    
+                console.log("/individualChart/:form_id - jsonObject = ",jsonObject);
+    
+                res.status(200).send(jsonObject);
+            }
+    
+        });
     });
-});
-
 router.post('/user/forms',function(req,res,next){
+    console.log("/user/forms");
     var userEmail;
     // var json;
     // var response_cnt;
@@ -677,7 +669,7 @@ router.post('/user/forms',function(req,res,next){
         console.log('filed 들어옴');
         if(name=='userEmail'){
             userEmail=value;
-            console.log(json);
+            //console.log(json);
         }
     });
     form.on('close',function(){
@@ -839,11 +831,204 @@ router.get('/user/:userEmail',function(req,res){
                         res.status(200).send(true);
                     }
                 });
+            }else{
+                res.status(200).send(true);
             }
 
         }
     });
 
 });
+router.get('/user/:userEmail/:state',function(req,res){
+    var to=req.params.userEmail;
+    var state=req.params.state;
+    var temp=escape(to);
+    var query='SELECT * FROM pjh1352.profile where user_email=any(SELECT sender FROM pjh1352.friendlog where receiver=?)'
+    //var query='SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE user_email=?';
+    var params=[temp];
+    connection.query(query,params,function(err,rows,fields){
+        if(err){
+            console.log("데이터 select 오류 : "+err);
+            res.status(404);
+        }else{
 
+            
+        
+            var jsonObject=new Array();
+            for(i=0;i<rows.length;i++){
+                var temp=new Object();
+                temp._id=rows[i]._id;
+                temp.userEmail=rows[i].user_email;
+                temp.profileImageUrl=rows[i].profile_image_url;
+                jsonObject.push(temp);
+            }
+            
+            res.status(200).json(jsonObject);
+            
+        }
+    })
+});
+
+router.get('/user/profile/select/:user_email',function(req,res,next){
+    
+    var user_email=req.params.user_email;
+    console.log('/user/profile/:user_email : '+user_email);
+    fs.stat(__dirname+'/../profile/'+user_email,function(err){
+        if(err){
+            //throw err;
+            console.log(err);
+            res.send(false);
+        }else{
+            var readStream=fs.createReadStream(__dirname+'/../profile/'+user_email)
+            readStream.pipe(res);
+        }
+    })
+    
+    
+})
+router.post('/user/profile/upload',function(req,res,next){
+    console.log('/user/profile/upload : '+"진입");
+    var form=new multiparty.Form();
+    
+    var userEmail;
+    form.parse(req);
+    form.on('field',function(name,value){
+        console.log('field : '+name);
+        if(name=='userEmail'){
+            userEmail=value;
+            console.log('field : '+value);
+        }
+    });
+    form.on('part',function(part){
+        console.log('field : '+part);
+        if(part.filename){
+            filename=part.filename;
+            size=part.byteCount;
+            
+            console.log('part 들어옴 : '+part.name);
+            console.log('part 들어옴 : '+filename);
+        }else{
+            part.resume();
+        }
+        var query='UPDATE pjh1352.profile SET profile_image_url = ? WHERE user_email = ?';
+        var params=[part.name,part.name];
+        connection.query(query,params,function(err,rows,fields){
+            
+            mkdirp(__dirname+'/../profile',function(err){
+                if(err)console.log('already exist dir'); 
+                writeStream = fs.createWriteStream(__dirname+'/../profile/'+part.name+'.jpg');
+                writeStream.filename = filename;
+                part.pipe(writeStream);
+                console.log(writeStream);
+            });
+        })
+        
+         part.on('end',function(){
+            console.log(filename+' Part read complete');
+            writeStream.end();
+        });
+    })
+    
+    form.on('close',function(){
+        console.log('close');
+        res.status(200).send('Upload complete');
+        
+    });
+});
+router.post('/friend/select',function(req,res,next){
+    var userEmail=req.body.userEmail;
+    var query='SELECT * FROM pjh1352.profile WHERE user_email = any(SELECT friend_email FROM pjh1352.friend WHERE user_email = ?)';
+    var params=[userEmail];
+    connection.query(query,params,function(err,rows,fields){
+        if(err){
+            console.log('/friend/select실패'+err);
+            throw err;
+        }else{
+            console.log('/friend/select완료');
+            var jsonObject=new Array();
+            for(i=0;i<rows.length;i++){
+                var temp=new Object();
+                temp._id=rows[i]._id;
+                temp.userEmail=rows[i].user_email;
+                temp.profileImageUrl=rows[i].profile_image_url;
+                jsonObject.push(temp);
+            }
+            console.log(jsonObject);
+            res.status(200).json(jsonObject);
+        }
+    });
+});
+router.post('/friend/update',function(req,res,next){
+    var sender=req.body.sender;
+    var receiver=req.body.receiver;
+    var state=req.body.state;
+    var deleteQuery='DELETE FROM pjh1352.friendlog where sender = ? and receiver = ?';
+    var params=[sender,receiver];
+    if(state==0){
+        //reject
+        connection.query(deleteQuery,params,function(err,rows,fields){
+            if(err){
+                console.log('저장실패'+err);
+                throw err;
+            }else{
+                console.log('저장완료');
+                res.status(200).send(true);
+            }
+        });
+    }else if(state==1){
+        //grant user
+        var insertQuery1='INSERT INTO pjh1352.friend (user_email,friend_email) VALUES(?,?)';
+        var insertQuery2='INSERT INTO pjh1352.friend (friend_email,user_email) VALUES(?,?)';
+        params=[receiver,sender];
+        connection.query(insertQuery1,params,function(err,rows,fields){
+            if(err){
+                console.log('저장실패'+err);
+                throw err;
+            }else{
+                console.log('저장완료');
+                connection.query(insertQuery2,params,function(err,rows,fields){
+                    if(err){
+                        console.log('저장실패'+err);
+                        throw err;
+                    }
+                    connection.query(deleteQuery,params,function(err,rows,fields){
+                        if(err){
+                            console.log('저장실패'+err);
+                            throw err;
+                        }else{
+                            console.log('저장완료');
+                            res.status(200).send(true);
+                        }
+                    });
+                });
+                
+               
+            }
+        });
+
+    }
+    
+});
+router.post('/friend/request',function(req,res,next){
+    var sender=req.body.sender;
+    var receiver=req.body.receiver;
+    var state=req.body.state;
+    var time=req.body.time;
+    
+    var query='INSERT INTO pjh1352.friendlog set ?';
+    
+    console.log(":" +sender+" "+receiver+" "+state+" "+time);
+    var params={sender:sender,receiver:receiver,state:state,time:time};
+    
+    connection.query(query,params,function(err,rows,fields){
+        if(err){
+            
+            console.log('저장실패'+err);
+        }else{
+            console.log('저장완료');
+            res.status(200).send(true);
+        }
+    });
+    
+});
 module.exports=router;
