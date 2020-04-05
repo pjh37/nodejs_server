@@ -11,8 +11,8 @@ const path=require('path');
 var connection=mysql.createConnection({
     host : 'nodejs-003.cafe24.com',
     user : 'pjh1352',
-    password : 'sakarin2018',
-    datebase : 'pjh1352',
+    password : '*',
+    datebase : '*',
     charset: 'utf8_bin'
 });
 connection.connect(function(err){
