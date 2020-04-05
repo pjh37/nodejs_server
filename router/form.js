@@ -1,27 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const multiparty = require('multiparty');
-const mysql = require('mysql');
 const fs = require('fs');
 const mkdirp=require('mkdirp');
 const path=require('path');
-// const socket=require('socket.io');
-//require('date-utils');
 
-var connection=mysql.createConnection({
-    host : 'nodejs-003.cafe24.com',
-    user : 'pjh1352',
-    password : '*',
-    datebase : '*',
-    charset: 'utf8_bin'
-});
-connection.connect(function(err){
-    if(err){
-        console.log('connect error');
-    }else{
-        console.log('mysql connected!!');
-    }
-});
+
+const mysql_db=require('../public/config/db_connection')();
+const connection=mysql_db.init();
+mysql_db.dbConnect(connection);
+
 
 
 router.post('/save',function(req,res,next){
