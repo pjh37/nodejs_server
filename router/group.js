@@ -57,13 +57,53 @@ router.post('/create',function(req,res,next){
     });
     
 });
+router.post('/passwordCheck',function(req,res,next){
+    var groupID=req.body.groupID;
+    var password="\""+req.body.password+"\"";
+    var userEmail=req.body.userEmail;
+    var query='select groupPassword from pjh1352.group where _id = ?';
+    var params=[groupID];
+    console.log('groupID : '+groupID+"  password : "+password);
+        connection.query(query,params,function(err,rows,fields){
+            if(err)throw err;
+            else{
+                
+                var jsonObject=new Object();
+                jsonObject.right=true;
+                
+                if(rows[0].groupPassword==password){
+                    console.log('존재 o');
+                    jsonObject.right=true;
+                    
 
+                    var query='insert into pjh1352.mygroup (group_id,userEmail) values(?,?)';
+                    var params=[groupID,userEmail];
+                    connection.query(query,params,function(err,rows,fields){
+                        if(err)throw err;
+                        var updateQuery='update pjh1352.group set member_cnt = member_cnt+1 where _id = ?';
+                        var updateParams=[groupID]
+                        connection.query(updateQuery,updateParams,function(err,rows,fields){
+                        if(err)throw err;
+                            res.status(200).json(jsonObject);
+                        });
+                        
+                    });
+                    
+                }else{
+                    console.log('존재 x');
+                    jsonObject.right=false;
+                    res.status(200).json(jsonObject);
+                }
+            }
+        });
+});
 //모든 그룹 가져오기
-router.get('/all/:count/:offset',function(req,res,next){
+router.get('/all/:userEmail/:count/:offset',function(req,res,next){
+    var userEmail=req.params.userEmail;
     var count=req.params.count*1;
     var offset=req.params.offset*1;
-    var query='select * from pjh1352.group limit ? offset ?';
-    var params=[count,offset];
+    var query='select * from pjh1352.group where _id not in (select group_id from pjh1352.mygroup where userEmail = ?) limit ? offset ?';
+    var params=[userEmail,count,offset];
     connection.query(query,params,function(err,rows,fields){
         if(err){
             throw err;
@@ -130,8 +170,23 @@ router.post('/join',function(req,res,next){
 });
 
 //그룹 탈퇴
-router.delete('/withdraw',function(req,res,next){
-
+router.delete('/withdraw/:groupID',function(req,res,next){
+    var _id=req.params.groupID;
+    var updateQuery='update pjh1352.group set member_cnt = member_cnt-1 where _id in (select group_id from pjh1352.mygroup where _id = ?)';
+    var updateParams=[_id]
+   
+    connection.query(updateQuery,updateParams,function(err,rows,fields){
+        if(err)throw err;
+        var query='delete from pjh1352.mygroup where _id = ?';
+        var params=[_id];
+        connection.query(query,params,function(err,rows,fields){
+            if(err)throw err;
+            var jsonObject=new Object();
+            jsonObject.right=true;
+            res.status(200).json(jsonObject);
+        });
+        
+    });
 });
 
 //그룹 정보 수정
