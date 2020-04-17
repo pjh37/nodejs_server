@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="//code.jquery.com/jquery.min.js"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.min.css" rel="stylesheet"/> -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet"/>
   <link rel="stylesheet" type="text/css" href="../public/css/style.css">
 
@@ -24,9 +23,7 @@
 <% if(formComponents !== null){ %>
 <%  for(var i=0;i<formComponents.length;i++){ %>
 <%    var mType=formComponents[i].type %>
-<%    var required=formComponents[i].required_switch // boolean
-    //console.log("typeof required = ", typeof required)
-%>
+<%    var required=formComponents[i].required_switch // boolean %>
 
 
 
@@ -457,7 +454,6 @@
                                   app.use(express.static(__dirname + '/save')) 때문에 가능 -->
                                   <%
                                       if(formComponents[i].real_file_data != undefined){
-                              console.log("else if(mType==12) - formComponents[i].real_file_data = ",formComponents[i].real_file_data)
                                   %>
                                   <div>
                         <%
@@ -467,7 +463,7 @@
                             var filenamefolder = splitFileExtension[0]
                         %>
                                       <!-- 맨앞에 '/' 빼먹으면 이미지 못불러옵니다. -->
-                                      <img src="/images/<%= user_email %>/<%= form_id %>/<%= filenamefolder %>/<%= splitArray[len-1] %>" width="400" height="400">
+                                      <img src="/images/<%= user_email %>/<%= form_id %>/<%= filenamefolder %>/<%= splitArray[len-1] %>" width="640" height="480">
                                   </div>
                                   <% } else{
                                     console.log("else if(mType==12) - formComponents[i].real_file_data UNDEFINED")
@@ -475,7 +471,39 @@
                               <input type="text" style="display:none" name=<%=i %> value="image" readonly >
                               </div>
                           </div>
-                      <% } %>
+                          <% } else if(mType==13){ %>
+                                <!--동영상-->
+                                  <div class="type13 form-group">
+                                      <div style="border :2px solid #00BFFF;border-radius: 20px;padding: 15px; background-color: #ffffff;">
+                                          <div>
+                                              <label name='title'><%= formComponents[i].question  %></label>
+                                          </div>
+
+                                          <%
+                                          var YtbURL = formComponents[i].ytburl
+                                          //console.log("ytburl = ",YtbURL)
+                                            //console.log("typeof ytburl = ", typeof YtbURL) // string
+
+                                              if(YtbURL !==""){
+
+                                          %>
+                                          <div>
+                                <%
+                                    var splitArray = formComponents[i].ytburl.split('/')
+                                    var videoSrc = splitArray[3]
+                                    //console.log("videoSrc = ",videoSrc)
+                                %>
+                                <iframe width="1080" height="480" allowfullscreen
+                                src="https://www.youtube.com/embed/<%=videoSrc%>" ></iframe>
+                                <!-- 720p 화질 -->
+                                          </div>
+                                          <% } else{
+                                            console.log("널 ytburl = ",formComponents[i].ytburl)
+                                          }%>
+                                      <input type="text" style="display:none" name=<%=i %> value="video" readonly >
+                                      </div>
+                                  </div>
+                              <% } %>
 
 
 

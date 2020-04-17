@@ -5,6 +5,7 @@ const fs = require('fs');
 const mkdirp=require('mkdirp');
 const path=require('path');
 
+const fsExtra = require('fs-extra') // install !
 
 const mysql_db=require('../public/config/db_connection')();
 const connection=mysql_db.init();
@@ -177,7 +178,7 @@ router.post('/update',function(req,res,next){
                 // size=part.byteCount;
                 // console.log('router.post update part - part.headers = '+part.headers);
                 // console.log('router.post update part - part.name = '+part.name);
-                console.log('router.post update part - part.filename = '+part.filename);
+                // console.log('router.post update part - part.filename = '+part.filename);
                 // console.log('router.post update part - part.byteCount = '+part.byteCount);
             }else{ // 파일 아닐경우 처리 넘기기
                 part.resume();
@@ -193,16 +194,24 @@ router.post('/update',function(req,res,next){
               console.log('router.post update part query - userEmail = ',userEmail);
 
               var dirPath =__dirname+"/../save/images/"+userEmail+'/'+form_id+'/'+splitArray[0];
-              const isExists = fs.existsSync( dirPath ); // if exist return true
-              if( !isExists ) { // dir if not exist
-                  fs.mkdirSync( dirPath, { recursive: true } );
-                  writeStream = fs.createWriteStream(dirPath+'/'+filename);
-                  writeStream.filename = filename;
-                  part.pipe(writeStream); // 파일 쓰는 부분
-                  console.log('router.post update part - create dir');
-              }else{
-                console.log('router.post update part - already exist');
-              }
+              fsExtra.emptyDirSync(dirPath) // work ! , 기존 이미지 삭제 후 다시 쓰기 , 충돌문제 해결!
+
+              // const isExists = fs.existsSync( dirPath ); // if exist return true
+              // if( !isExists ) { // dir if not exist
+              //     fs.mkdirSync( dirPath, { recursive: true } );
+              //     writeStream = fs.createWriteStream(dirPath+'/'+filename);
+              //     writeStream.filename = filename;
+              //     part.pipe(writeStream); // 파일 쓰는 부분
+              //     console.log('router.post update part - create dir');
+              // }else{
+              //   console.log('router.post update part - already exist');
+              // }
+
+              fs.mkdirSync( dirPath, { recursive: true } );
+              writeStream = fs.createWriteStream(dirPath+'/'+filename);
+              writeStream.filename = filename;
+              part.pipe(writeStream); // 파일 쓰는 부분
+
           })
 
 
@@ -231,6 +240,7 @@ router.post('/update',function(req,res,next){
     });
     form.parse(req);
 });
+
 router.get('/deleteform/:form_id',function(req,res,next){
     var form_id=req.params.form_id;
     console.log(form_id);
@@ -619,13 +629,13 @@ router.get('/individual/:form_id',function(req,res){
 });
 router.get('/individualChart/:form_id',function(req,res){
     console.log("/individualChart/:form_id - called ");
-    
+
         var form_id=req.params.form_id;
-    
+
         var title;
         var description;
         var json;
-    
+
         var query='SELECT * FROM pjh1352.user WHERE _id=?';
         var params=[form_id];
         connection.query(query,params,function(err,rows,fields){
@@ -633,17 +643,17 @@ router.get('/individualChart/:form_id',function(req,res){
                 console.log("/individualChart/:form_id - 데이터 select 오류");
                 res.status(404);
             }else{
-    
+
                 var jsonObject=new Object();
                 jsonObject.title=rows[0].title;
                 jsonObject.description=rows[0].description;
                 jsonObject.json=rows[0].json;
-    
+
                 console.log("/individualChart/:form_id - jsonObject = ",jsonObject);
-    
+
                 res.status(200).send(jsonObject);
             }
-    
+
         });
     });
 router.post('/user/forms',function(req,res,next){
@@ -840,8 +850,8 @@ router.get('/user/:userEmail/:state',function(req,res){
             res.status(404);
         }else{
 
-            
-        
+
+
             var jsonObject=new Array();
             for(i=0;i<rows.length;i++){
                 var temp=new Object();
@@ -850,15 +860,15 @@ router.get('/user/:userEmail/:state',function(req,res){
                 temp.profileImageUrl=rows[i].profile_image_url;
                 jsonObject.push(temp);
             }
-            
+
             res.status(200).json(jsonObject);
-            
+
         }
     })
 });
 
 router.get('/user/profile/select/:user_email',function(req,res,next){
-    
+
     var user_email=req.params.user_email;
     console.log('/user/profile/:user_email : '+user_email);
     fs.stat(__dirname+'/../profile/'+user_email,function(err){
@@ -871,13 +881,13 @@ router.get('/user/profile/select/:user_email',function(req,res,next){
             readStream.pipe(res);
         }
     })
-    
-    
+
+
 })
 router.post('/user/profile/upload',function(req,res,next){
     console.log('/user/profile/upload : '+"진입");
     var form=new multiparty.Form();
-    
+
     var userEmail;
     form.parse(req);
     form.on('field',function(name,value){
@@ -892,7 +902,7 @@ router.post('/user/profile/upload',function(req,res,next){
         if(part.filename){
             filename=part.filename;
             size=part.byteCount;
-            
+
             console.log('part 들어옴 : '+part.name);
             console.log('part 들어옴 : '+filename);
         }else{
@@ -901,26 +911,26 @@ router.post('/user/profile/upload',function(req,res,next){
         var query='UPDATE pjh1352.profile SET profile_image_url = ? WHERE user_email = ?';
         var params=[part.name,part.name];
         connection.query(query,params,function(err,rows,fields){
-            
+
             mkdirp(__dirname+'/../profile',function(err){
-                if(err)console.log('already exist dir'); 
+                if(err)console.log('already exist dir');
                 writeStream = fs.createWriteStream(__dirname+'/../profile/'+part.name+'.jpg');
                 writeStream.filename = filename;
                 part.pipe(writeStream);
                 console.log(writeStream);
             });
         })
-        
+
          part.on('end',function(){
             console.log(filename+' Part read complete');
             writeStream.end();
         });
     })
-    
+
     form.on('close',function(){
         console.log('close');
         res.status(200).send('Upload complete');
-        
+
     });
 });
 router.post('/friend/select',function(req,res,next){
@@ -989,34 +999,34 @@ router.post('/friend/update',function(req,res,next){
                         }
                     });
                 });
-                
-               
+
+
             }
         });
 
     }
-    
+
 });
 router.post('/friend/request',function(req,res,next){
     var sender=req.body.sender;
     var receiver=req.body.receiver;
     var state=req.body.state;
     var time=req.body.time;
-    
+
     var query='INSERT INTO pjh1352.friendlog set ?';
-    
+
     console.log(":" +sender+" "+receiver+" "+state+" "+time);
     var params={sender:sender,receiver:receiver,state:state,time:time};
-    
+
     connection.query(query,params,function(err,rows,fields){
         if(err){
-            
+
             console.log('저장실패'+err);
         }else{
             console.log('저장완료');
             res.status(200).send(true);
         }
     });
-    
+
 });
 module.exports=router;
