@@ -125,11 +125,12 @@ router.get('/image/cover/:id',function(req,res,next){
     var params=[_id];
     connection.query(query,params,function(err,rows,fields){
         if(err)throw err;
-        fs.stat(__dirname+'/../save/group',function(err){
+        fs.stat(__dirname+'/../save/group/'+rows[0].cover+'.jpg',function(err){
             if(err){
                 //throw err;
                 console.log(err);
-                res.send(false);
+                var readStream=fs.createReadStream(__dirname+'/../save/default/default_img.png');
+                readStream.pipe(res);
             }else{
                 console.log('사진 선택');
                 var readStream=fs.createReadStream(__dirname+'/../save/group/'+rows[0].cover+'.jpg')
