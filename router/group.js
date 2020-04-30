@@ -19,7 +19,8 @@ router.post('/create',function(req,res,next){
     var form=new multiparty.Form();
     form.parse(req);
     form.on('field',function(name,value){
-        console.log('field : '+name+"  value : "+value);
+        console.log('field : ' + name + "  value : " + value);
+        console.log('test1');
         if(name=="title")title=value;
         if(name=="description")description=value;
         if(name=="category")category=value;
@@ -29,6 +30,7 @@ router.post('/create',function(req,res,next){
     });
     form.on('part',function(part){
         console.log(part.name);
+        console.log('test2');
         cover=part.name;
         var query='insert into pjh1352.group(title,description,category,authority,cover,author,groupPassword) values(?,?,?,?,?,?,?)';
         var params=[title,description,category,authority,cover,author,groupPassword];

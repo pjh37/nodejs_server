@@ -739,9 +739,9 @@ router.get('/search_keyword/:keyword', function (req, res, next) {
     });
 });
 
-router.get('/search_id/:_id', function (req, res, next) {
-    var Keyword = req.params.keyword;
-    var query = "SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE _id"
+router.get('/search_id/:id', function (req, res, next) {
+    var Keyword = req.params.id;
+    var query = "SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE _id=?"
     var params = [Keyword];
     connection.query(query, params, function (err, rows, fields) {
         if (err) {
@@ -760,6 +760,7 @@ router.get('/search_id/:_id', function (req, res, next) {
             }
             console.log(jsonObject[0]);
             res.status(200).json(jsonObject);
+            console.log("데이터 response 성공");
         }
 
     });
@@ -900,15 +901,16 @@ router.post('/user/profile/upload',function(req,res,next){
         }
         var query='UPDATE pjh1352.profile SET profile_image_url = ? WHERE user_email = ?';
         var params=[part.name,part.name];
-        connection.query(query,params,function(err,rows,fields){
-            
-            mkdirp(__dirname+'/../profile',function(err){
+        connection.query(query, params, function (err, rows, fields) {
+
+            mkdirp(__dirname + '/../profile', function (err) {
                 if(err)console.log('already exist dir'); 
                 writeStream = fs.createWriteStream(__dirname+'/../profile/'+part.name+'.jpg');
                 writeStream.filename = filename;
                 part.pipe(writeStream);
                 console.log(writeStream);
             });
+            
         })
         
          part.on('end',function(){
