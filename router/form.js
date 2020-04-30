@@ -5,6 +5,7 @@ const fs = require('fs');
 const mkdirp=require('mkdirp');
 const path=require('path');
 
+const fsExtra = require('fs-extra')
 
 const mysql_db=require('../public/config/db_connection')();
 const connection=mysql_db.init();
@@ -64,27 +65,18 @@ router.post('/save',function(req,res,next){
         var query='SELECT _id,user_email FROM pjh1352.user ORDER BY _id DESC LIMIT 1';
         connection.query(query,function(err,rows,fields){
             form_id=rows[0]._id;
-            userEmail=rows[0].user_email; // field 다음에 실행되는 부분이 아니라서 undefined 나온다.
-            // mkdirp(__dirname+'/../save/'+userEmail+'/'+form_id,function(err){
-            //     if(err)console.log('already exist dir');
-            //     writeStream = fs.createWriteStream(__dirname+'/../save/'+userEmail+'/'+form_id+'/'+part.name+'.jpg');
-            //     writeStream.filename = filename;
-            //     part.pipe(writeStream);
-            //     console.log(writeStream);
-            // });
-            var dirPath =__dirname+"/../save/images/"+userEmail+'/'+form_id+'/'+splitArray[0];
-            const isExists = fs.existsSync( dirPath ); // if exist return true
-            if( !isExists ) { // dir if not exist
-              fs.mkdirSync( dirPath, { recursive: true } );
+            userEmail=rows[0].user_email;
 
-              writeStream = fs.createWriteStream(dirPath+'/'+filename);
-              writeStream.filename = filename;
-              part.pipe(writeStream); // 파일 쓰는 부분
+        // 새 생성은 form_id 가 유니크해서 충돌이 없다.
+            var dirPath = __dirname + "/../save/images/" + userEmail + '/' + form_id + '/' + splitArray[0];
+            fsExtra.emptyDirSync(dirPath) // 기존 이미지 삭제 후 다시 쓰기 , 충돌문제 해결!
+            fs.mkdirSync(dirPath, {
+              recursive: true
+            });
+            writeStream = fs.createWriteStream(dirPath + '/' + filename);
+            writeStream.filename = filename;
+            part.pipe(writeStream); // 파일 쓰는 부분
 
-              console.log('router.post save part - create dir');
-          }else{
-            console.log('router.post save part - already exist');
-          }
         })
 
          part.on('end',function(){
@@ -154,7 +146,7 @@ router.post('/update',function(req,res,next){
   var title;
   var description;
   var json;
-
+  var IsfileSaved = false;
     form.on('field',function(name,value){
         console.log('filed 들어옴');
         if(name=='json'){
@@ -162,9 +154,23 @@ router.post('/update',function(req,res,next){
           title = jsonObject.title;
           description = jsonObject.description;
           json = JSON.stringify(jsonObject.formComponents);
+          userEmail = jsonObject.userEmail;
         }
         if(name=='form_id'){
             form_id=value;
+
+            // 이전 결과들 삭제 , 결과쪽 혼선방지
+            var query='DELETE FROM checkmate_schema.result WHERE form_id=?';
+            var params = [form_id];
+            connection.query(query, params, function(err, rows, fields) {
+              if (err) {
+                console.log("router.post update field - 데이터 Delete 오류");
+                // res.status(404).send("delete error");
+              } else {
+                // console.log("router.post update field - 데이터 Delete 성공");
+                // res.status(200).send("delete success");
+              }
+            })
         }
     });
 
@@ -177,7 +183,7 @@ router.post('/update',function(req,res,next){
                 // size=part.byteCount;
                 // console.log('router.post update part - part.headers = '+part.headers);
                 // console.log('router.post update part - part.name = '+part.name);
-                console.log('router.post update part - part.filename = '+part.filename);
+                // console.log('router.post update part - part.filename = '+part.filename);
                 // console.log('router.post update part - part.byteCount = '+part.byteCount);
             }else{ // 파일 아닐경우 처리 넘기기
                 part.resume();
@@ -189,30 +195,28 @@ router.post('/update',function(req,res,next){
           connection.query(query,function(err,rows,fields){
               form_id=rows[0]._id;
               userEmail=rows[0].user_email;
-              console.log('router.post update part query - form_id = ',form_id);
-              console.log('router.post update part query - userEmail = ',userEmail);
+              // console.log('router.post update part query - form_id = ',form_id);
+              // console.log('router.post update part query - userEmail = ',userEmail);
 
               var dirPath =__dirname+"/../save/images/"+userEmail+'/'+form_id+'/'+splitArray[0];
-              const isExists = fs.existsSync( dirPath ); // if exist return true
-              if( !isExists ) { // dir if not exist
-                  fs.mkdirSync( dirPath, { recursive: true } );
-                  writeStream = fs.createWriteStream(dirPath+'/'+filename);
-                  writeStream.filename = filename;
-                  part.pipe(writeStream); // 파일 쓰는 부분
-                  console.log('router.post update part - create dir');
-              }else{
-                console.log('router.post update part - already exist');
-              }
+              fsExtra.emptyDirSync(dirPath) // 기존 이미지 삭제 후 다시 쓰기 , 충돌문제 해결!
+
+
+
+              fs.mkdirSync( dirPath, { recursive: true } );
+              writeStream = fs.createWriteStream(dirPath+'/'+filename);
+              writeStream.filename = filename;
+              part.pipe(writeStream); // 파일 쓰는 부분
+
           })
 
 
            part.on('end',function(){
               console.log('router.post update part end - Part read complete, filename = ',filename);
               writeStream.end();
+              IsfileSaved = true;
           });
         })
-
-
 
     form.on('close',function(){
         console.log(json);
@@ -228,23 +232,51 @@ router.post('/update',function(req,res,next){
                 res.status(200).send("update success");
             }
         })
+        if(IsfileSaved === false){
+                  // 이미지 없이 업데이트된 경우, 기존 이미지들 제거
+          var dirPath =__dirname+"/../save/images/"+userEmail+'/'+form_id;
+          fsExtra.emptyDirSync(dirPath); // 이미지 서버에 쌓이는거 방지
+        }
+
+
     });
     form.parse(req);
 });
-router.get('/deleteform/:form_id',function(req,res,next){
+
+router.get('/deleteform/:form_id/:user_email', function(req, res, next) {
     var form_id=req.params.form_id;
-    console.log(form_id);
+    var userEmail = req.params.user_email;
     var query='DELETE FROM pjh1352.user WHERE _id=?';
     var params=[form_id];
     connection.query(query,params,function(err,rows,fields){
         if(err){
             console.log("데이터 Delete 오류");
-            res.status(404).send("delete error");
+            // res.status(404).send("delete error");
         }else{
             console.log("데이터 Delete 성공");
-            res.status(200).send("delete success");
+            // res.status(200).send("delete success");
         }
     })
+
+    // 설문 삭제 했다면 , 결과쪽도 삭제하자
+    var query2='DELETE FROM pjh1352.result WHERE form_id=?';
+    var params2 = [form_id];
+    connection.query(query2, params2, function(err, rows, fields) {
+      if (err) {
+        console.log("router.get(/deleteform/:form_id - 결과 Delete 오류");
+        res.status(404).send("delete error");
+      } else {
+        console.log("router.get(/deleteform/:form_id - 결과 Delete 성공");
+        res.status(200).send("delete success");
+      }
+    });
+
+    // 삭제했다면 기존 이미지도 제거하자
+    var dirPath =__dirname+"/../save/images/"+userEmail+'/'+form_id;
+    fsExtra.emptyDirSync(dirPath);
+
+
+
 });
 
 router.post('/draftsave', function(req, res, next) {
@@ -619,13 +651,13 @@ router.get('/individual/:form_id',function(req,res){
 });
 router.get('/individualChart/:form_id',function(req,res){
     console.log("/individualChart/:form_id - called ");
-    
+
         var form_id=req.params.form_id;
-    
+
         var title;
         var description;
         var json;
-    
+
         var query='SELECT * FROM pjh1352.user WHERE _id=?';
         var params=[form_id];
         connection.query(query,params,function(err,rows,fields){
@@ -633,17 +665,17 @@ router.get('/individualChart/:form_id',function(req,res){
                 console.log("/individualChart/:form_id - 데이터 select 오류");
                 res.status(404);
             }else{
-    
+
                 var jsonObject=new Object();
                 jsonObject.title=rows[0].title;
                 jsonObject.description=rows[0].description;
                 jsonObject.json=rows[0].json;
-    
+
                 console.log("/individualChart/:form_id - jsonObject = ",jsonObject);
-    
+
                 res.status(200).send(jsonObject);
             }
-    
+
         });
     });
 router.post('/user/forms',function(req,res,next){
@@ -841,8 +873,8 @@ router.get('/user/:userEmail/:state',function(req,res){
             res.status(404);
         }else{
 
-            
-        
+
+
             var jsonObject=new Array();
             for(i=0;i<rows.length;i++){
                 var temp=new Object();
@@ -851,15 +883,15 @@ router.get('/user/:userEmail/:state',function(req,res){
                 temp.profileImageUrl=rows[i].profile_image_url;
                 jsonObject.push(temp);
             }
-            
+
             res.status(200).json(jsonObject);
-            
+
         }
     })
 });
 
 router.get('/user/profile/select/:user_email',function(req,res,next){
-    
+
     var user_email=req.params.user_email;
     console.log('/user/profile/:user_email : '+user_email);
     fs.stat(__dirname+'/../profile/'+user_email,function(err){
@@ -872,13 +904,13 @@ router.get('/user/profile/select/:user_email',function(req,res,next){
             readStream.pipe(res);
         }
     })
-    
-    
+
+
 })
 router.post('/user/profile/upload',function(req,res,next){
     console.log('/user/profile/upload : '+"진입");
     var form=new multiparty.Form();
-    
+
     var userEmail;
     form.parse(req);
     form.on('field',function(name,value){
@@ -893,14 +925,15 @@ router.post('/user/profile/upload',function(req,res,next){
         if(part.filename){
             filename=part.filename;
             size=part.byteCount;
-            
+
             console.log('part 들어옴 : '+part.name);
             console.log('part 들어옴 : '+filename);
         }else{
             part.resume();
         }
         var query='UPDATE pjh1352.profile SET profile_image_url = ? WHERE user_email = ?';
-        var params=[part.name,part.name];
+        var params = [part.name, part.name];
+
         connection.query(query, params, function (err, rows, fields) {
 
             mkdirp(__dirname + '/../profile', function (err) {
@@ -912,17 +945,17 @@ router.post('/user/profile/upload',function(req,res,next){
             });
             
         })
-        
+
          part.on('end',function(){
             console.log(filename+' Part read complete');
             writeStream.end();
         });
     })
-    
+
     form.on('close',function(){
         console.log('close');
         res.status(200).send('Upload complete');
-        
+
     });
 });
 router.post('/friend/select',function(req,res,next){
@@ -991,34 +1024,34 @@ router.post('/friend/update',function(req,res,next){
                         }
                     });
                 });
-                
-               
+
+
             }
         });
 
     }
-    
+
 });
 router.post('/friend/request',function(req,res,next){
     var sender=req.body.sender;
     var receiver=req.body.receiver;
     var state=req.body.state;
     var time=req.body.time;
-    
+
     var query='INSERT INTO pjh1352.friendlog set ?';
-    
+
     console.log(":" +sender+" "+receiver+" "+state+" "+time);
     var params={sender:sender,receiver:receiver,state:state,time:time};
-    
+
     connection.query(query,params,function(err,rows,fields){
         if(err){
-            
+
             console.log('저장실패'+err);
         }else{
             console.log('저장완료');
             res.status(200).send(true);
         }
     });
-    
+
 });
 module.exports=router;
