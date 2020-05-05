@@ -747,7 +747,7 @@ router.post('/user/forms',function(req,res,next){
 
 router.get('/search_keyword/:keyword', function (req, res, next) {
     var Keyword = req.params.keyword;
-    var query = "SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE title LIKE " + connection.escape('%' + req.params.keyword + '%');
+    var query = "SELECT _id,user_email,title,response_cnt,time FROM pjh1352.user WHERE title LIKE " + connection.escape('%' + req.params.keyword + '%');
     var params = [Keyword];
     connection.query(query, params, function (err, rows, fields) {
         if (err) {
