@@ -260,11 +260,11 @@ router.post('/add_comment', function (req, res, next) {
 });
 
 //댓글 삭제
-router.get('/delete_comment/:_id', function (req, res, next) {
-    var _id = req.params._id;
-    console.log(_id);
+router.get('/delete_comment/:id', function (req, res, next) {
+    var id = req.params.id;
+    console.log(id);
     var query = 'DELETE FROM pjh1352.comment WHERE _id=?';
-    var params = [_id];
+    var params = [id];
     connection.query(query, params, function (err, rows, fields) {
         if (err) {
             console.log("데이터 Delete 오류");
@@ -293,11 +293,11 @@ router.post('/add_comment_reply', function (req, res, next) {
 });
 
 //대댓글 삭제
-router.get('/delete_reply/:_id', function (req, res, next) {
-    var _id = req.params._id;
-    console.log(_id);
+router.get('/delete_reply/:id', function (req, res, next) {
+    var id = req.params.id;
+    console.log(id);
     var query = 'DELETE FROM pjh1352.comment_reply WHERE _id=?';
-    var params = [_id];
+    var params = [id];
     connection.query(query, params, function (err, rows, fields) {
         if (err) {
             console.log("데이터 Delete 오류");
