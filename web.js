@@ -3,19 +3,25 @@ const app=express()
 const port = 8001;
 const path = require('path');
 const ejs = require('ejs');
-const saveRouter = require('./router/form.js');
+
+const formRouter=require('./router/form.js');
+const wordRouter = require('./router/wordcloud.js');
+const chatRouter = require('./router/chat.js');
 const groupRouter = require('./router/group.js');
 const postRouter = require('./router/post.js');
-// const multiparty=require('multiparty');
-// const socket=require('socket.io');
-// const mysql=require('mysql');
-// const fs = require('fs');
+const friendRouter = require('./router/friend.js');
+
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use('/', saveRouter);
-app.use('/group', groupRouter);
-app.use('/post', postRouter);
+
+app.use('/',formRouter);
+app.use('/',wordRouter);
+app.use('/',chatRouter);
+app.use('/group',groupRouter);
+app.use('/post',postRouter);
+app.use('/',friendRouter);
+
 
 app.use(express.static(__dirname + '/save')); // 보안성 증가
 app.use(express.static(__dirname + '/public'));

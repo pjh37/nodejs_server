@@ -1,8 +1,11 @@
 const express=require('express');
 const mkdirp=require('mkdirp');
 const fs = require('fs');
+const fsExtra = require('fs-extra')
 const multiparty = require('multiparty');
 const router=express.Router();
+const path=require('path');
+
 const mysql_db=require('../public/config/db_connection')();
 const connection=mysql_db.init();
 mysql_db.dbConnect(connection);
@@ -38,7 +41,7 @@ router.post('/create',function(req,res,next){
             if(err)throw err;
             else{
                 mkdirp(__dirname+'/../save/group',function(err){
-                    if(err)console.log('already exist dir'); 
+                    if(err)console.log('already exist dir');
                     writeStream = fs.createWriteStream(__dirname+'/../save/group/'+part.name+'.jpg');
                     writeStream.filename = part.name;
                     part.pipe(writeStream);
@@ -46,7 +49,7 @@ router.post('/create',function(req,res,next){
                 });
             }
         });
-        
+
         part.on('end',function(){
             console.log(' Part read complete');
             writeStream.end();
@@ -55,10 +58,11 @@ router.post('/create',function(req,res,next){
     form.on('close',function(){
         console.log('close');
         res.status(200).send(true);
-        
+
     });
-    
+
 });
+
 router.post('/passwordCheck',function(req,res,next){
     var groupID=req.body.groupID;
     var password="\""+req.body.password+"\"";
@@ -69,14 +73,14 @@ router.post('/passwordCheck',function(req,res,next){
         connection.query(query,params,function(err,rows,fields){
             if(err)throw err;
             else{
-                
+
                 var jsonObject=new Object();
                 jsonObject.right=true;
-                
+
                 if(rows[0].groupPassword==password){
                     console.log('존재 o');
                     jsonObject.right=true;
-                    
+
 
                     var query='insert into pjh1352.mygroup (group_id,userEmail) values(?,?)';
                     var params=[groupID,userEmail];
@@ -88,9 +92,9 @@ router.post('/passwordCheck',function(req,res,next){
                         if(err)throw err;
                             res.status(200).json(jsonObject);
                         });
-                        
+
                     });
-                    
+
                 }else{
                     console.log('존재 x');
                     jsonObject.right=false;
@@ -110,7 +114,7 @@ router.get('/all/:userEmail/:count/:offset',function(req,res,next){
         if(err){
             throw err;
         }
-       
+
         var jsonObject=new Array();
         for(i=0;i<rows.length;i++){
             jsonObject.push(new Object(rows[i]));
@@ -142,7 +146,7 @@ router.get('/image/cover/:id',function(req,res,next){
     });
 });
 
-//자신이속한 그룹 가져오기
+//자신이 속한 그룹 가져오기
 router.get('/my/:userEmail',function(req,res,next){
     console.log("my group 불러오기");
     var userEmail=req.params.userEmail;
@@ -177,7 +181,7 @@ router.delete('/withdraw/:groupID',function(req,res,next){
     var _id=req.params.groupID;
     var updateQuery='update pjh1352.group set member_cnt = member_cnt-1 where _id in (select group_id from pjh1352.mygroup where _id = ?)';
     var updateParams=[_id]
-   
+
     connection.query(updateQuery,updateParams,function(err,rows,fields){
         if(err)throw err;
         var query='delete from pjh1352.mygroup where _id = ?';
@@ -188,7 +192,7 @@ router.delete('/withdraw/:groupID',function(req,res,next){
             jsonObject.right=true;
             res.status(200).json(jsonObject);
         });
-        
+
     });
 });
 

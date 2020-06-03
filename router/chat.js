@@ -1,6 +1,11 @@
-const express=require('express');
-const mysql=require('mysql');
-const router=express.Router();
+const express = require('express');
+const router = express.Router();
+const multiparty = require('multiparty');
+const fs = require('fs');
+const path=require('path');
+const fsExtra = require('fs-extra')
+const mkdirp=require('mkdirp');
+
 const mysql_db=require('../public/config/db_connection')();
 const connection=mysql_db.init();
 mysql_db.dbConnect(connection);
@@ -15,19 +20,19 @@ router.post('/create',function(req,res,next){
     var query='INSERT INTO pjh1352.roomlist (user_email,roomkey) VALUES ?;';
     var items=[];
     items.push([userEmail,roomkey]);
-    
+
     for(var i=0;i<friendEmails.length;i++){
         items.push([friendEmails[i],roomkey]);
     }
-    
-    
+
+
     connection.query(query,[items],function(err,rows,fields){
         if(err){
             throw err;
         }
         res.status(200).send(true);
     });
-    
+
 });
 
 router.get('/rooms/:userEmail',function(req,res,next){
@@ -53,7 +58,7 @@ router.get('/rooms/:roomKey/:count/:offset',function(req,res,next){
     var roomkey=req.params.roomKey;
     var count=Number(req.params.count);
     var offset=Number(req.params.offset);
-    
+
     var query='SELECT * FROM pjh1352.chatLog WHERE roomkey = ? order by date ASC LIMIT ? OFFSET ?';
     var params=[roomkey,count,offset];
     connection.query(query,params,function(err,rows,fields){
@@ -73,4 +78,5 @@ router.get('/rooms/:roomKey/:count/:offset',function(req,res,next){
         res.status(200).json(jsonObject);
     });
 });
+
 module.exports=router;

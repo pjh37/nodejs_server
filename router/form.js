@@ -2,10 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multiparty = require('multiparty');
 const fs = require('fs');
+const fsExtra = require('fs-extra')
 const mkdirp=require('mkdirp');
 const path=require('path');
-
-const fsExtra = require('fs-extra')
 
 const mysql_db=require('../public/config/db_connection')();
 const connection=mysql_db.init();
@@ -200,9 +199,6 @@ router.post('/update',function(req,res,next){
 
               var dirPath =__dirname+"/../save/images/"+userEmail+'/'+form_id+'/'+splitArray[0];
               fsExtra.emptyDirSync(dirPath) // 기존 이미지 삭제 후 다시 쓰기 , 충돌문제 해결!
-
-
-
               fs.mkdirSync( dirPath, { recursive: true } );
               writeStream = fs.createWriteStream(dirPath+'/'+filename);
               writeStream.filename = filename;
@@ -745,32 +741,6 @@ router.post('/user/forms',function(req,res,next){
 });
 
 
-router.get('/search_keyword/:keyword', function (req, res, next) {
-    var Keyword = req.params.keyword;
-    var query = "SELECT _id,user_email,title,response_cnt,time FROM pjh1352.user WHERE title LIKE " + connection.escape('%' + req.params.keyword + '%');
-    var params = [Keyword];
-    connection.query(query, params, function (err, rows, fields) {
-        if (err) {
-            console.log("데이터 select 오류");
-        } else {
-            console.log("데이터 select 성공");
-            var jsonObject = new Array();
-            for (i = 0; i < rows.length; i++) {
-                var temp = new Object();
-                temp._id = rows[i]._id;
-                temp.userEmail = rows[i].user_email;
-                temp.title = rows[i].title;
-                temp.response_cnt = rows[i].response_cnt;
-                temp.time = rows[i].time;
-
-                jsonObject.push(temp);
-            }
-            console.log(jsonObject[0]);
-            res.status(200).json(jsonObject);
-        }
-
-    });
-});
 
 router.get('/search_id/:id', function (req, res, next) {
     var Keyword = req.params.id;
@@ -861,35 +831,7 @@ router.get('/user/:userEmail',function(req,res){
     });
 
 });
-router.get('/user/:userEmail/:state',function(req,res){
-    var to=req.params.userEmail;
-    var state=req.params.state;
-    var temp=escape(to);
-    var query='SELECT * FROM pjh1352.profile where user_email=any(SELECT sender FROM pjh1352.friendlog where receiver=?)'
-    //var query='SELECT _id,title,response_cnt,time FROM pjh1352.user WHERE user_email=?';
-    var params=[temp];
-    connection.query(query,params,function(err,rows,fields){
-        if(err){
-            console.log("데이터 select 오류 : "+err);
-            res.status(404);
-        }else{
 
-
-
-            var jsonObject=new Array();
-            for(i=0;i<rows.length;i++){
-                var temp=new Object();
-                temp._id=rows[i]._id;
-                temp.userEmail=rows[i].user_email;
-                temp.profileImageUrl=rows[i].profile_image_url;
-                jsonObject.push(temp);
-            }
-
-            res.status(200).json(jsonObject);
-
-        }
-    })
-});
 
 router.get('/user/profile/select/:user_email',function(req,res,next){
 
@@ -908,151 +850,6 @@ router.get('/user/profile/select/:user_email',function(req,res,next){
 
 
 })
-router.post('/user/profile/upload',function(req,res,next){
-    console.log('/user/profile/upload : '+"진입");
-    var form=new multiparty.Form();
-
-    var userEmail;
-    form.parse(req);
-    form.on('field',function(name,value){
-        console.log('field : '+name);
-        if(name=='userEmail'){
-            userEmail=value;
-            console.log('field : '+value);
-        }
-    });
-    form.on('part',function(part){
-        console.log('field : '+part);
-        if(part.filename){
-            filename=part.filename;
-            size=part.byteCount;
-
-            console.log('part 들어옴 : '+part.name);
-            console.log('part 들어옴 : '+filename);
-        }else{
-            part.resume();
-        }
-        var query='UPDATE pjh1352.profile SET profile_image_url = ? WHERE user_email = ?';
-        var params = [part.name, part.name];
-
-        connection.query(query, params, function (err, rows, fields) {
-
-            mkdirp(__dirname + '/../profile', function (err) {
-                if(err)console.log('already exist dir'); 
-                writeStream = fs.createWriteStream(__dirname+'/../profile/'+part.name+'.jpg');
-                writeStream.filename = filename;
-                part.pipe(writeStream);
-                console.log(writeStream);
-            });
-            
-        })
-
-         part.on('end',function(){
-            console.log(filename+' Part read complete');
-            writeStream.end();
-        });
-    })
-
-    form.on('close',function(){
-        console.log('close');
-        res.status(200).send('Upload complete');
-
-    });
-});
-router.post('/friend/select',function(req,res,next){
-    var userEmail=req.body.userEmail;
-    var query='SELECT * FROM pjh1352.profile WHERE user_email = any(SELECT friend_email FROM pjh1352.friend WHERE user_email = ?)';
-    var params=[userEmail];
-    connection.query(query,params,function(err,rows,fields){
-        if(err){
-            console.log('/friend/select실패'+err);
-            throw err;
-        }else{
-            console.log('/friend/select완료');
-            var jsonObject=new Array();
-            for(i=0;i<rows.length;i++){
-                var temp=new Object();
-                temp._id=rows[i]._id;
-                temp.userEmail=rows[i].user_email;
-                temp.profileImageUrl=rows[i].profile_image_url;
-                jsonObject.push(temp);
-            }
-            console.log(jsonObject);
-            res.status(200).json(jsonObject);
-        }
-    });
-});
-router.post('/friend/update',function(req,res,next){
-    var sender=req.body.sender;
-    var receiver=req.body.receiver;
-    var state=req.body.state;
-    var deleteQuery='DELETE FROM pjh1352.friendlog where sender = ? and receiver = ?';
-    var params=[sender,receiver];
-    if(state==0){
-        //reject
-        connection.query(deleteQuery,params,function(err,rows,fields){
-            if(err){
-                console.log('저장실패'+err);
-                throw err;
-            }else{
-                console.log('저장완료');
-                res.status(200).send(true);
-            }
-        });
-    }else if(state==1){
-        //grant user
-        var insertQuery1='INSERT INTO pjh1352.friend (user_email,friend_email) VALUES(?,?)';
-        var insertQuery2='INSERT INTO pjh1352.friend (friend_email,user_email) VALUES(?,?)';
-        params=[receiver,sender];
-        connection.query(insertQuery1,params,function(err,rows,fields){
-            if(err){
-                console.log('저장실패'+err);
-                throw err;
-            }else{
-                console.log('저장완료');
-                connection.query(insertQuery2,params,function(err,rows,fields){
-                    if(err){
-                        console.log('저장실패'+err);
-                        throw err;
-                    }
-                    connection.query(deleteQuery,params,function(err,rows,fields){
-                        if(err){
-                            console.log('저장실패'+err);
-                            throw err;
-                        }else{
-                            console.log('저장완료');
-                            res.status(200).send(true);
-                        }
-                    });
-                });
 
 
-            }
-        });
-
-    }
-
-});
-router.post('/friend/request',function(req,res,next){
-    var sender=req.body.sender;
-    var receiver=req.body.receiver;
-    var state=req.body.state;
-    var time=req.body.time;
-
-    var query='INSERT INTO pjh1352.friendlog set ?';
-
-    console.log(":" +sender+" "+receiver+" "+state+" "+time);
-    var params={sender:sender,receiver:receiver,state:state,time:time};
-
-    connection.query(query,params,function(err,rows,fields){
-        if(err){
-
-            console.log('저장실패'+err);
-        }else{
-            console.log('저장완료');
-            res.status(200).send(true);
-        }
-    });
-
-});
 module.exports=router;
