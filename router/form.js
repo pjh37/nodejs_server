@@ -758,6 +758,7 @@ router.get('/search_keyword/:keyword', function (req, res, next) {
             for (i = 0; i < rows.length; i++) {
                 var temp = new Object();
                 temp._id = rows[i]._id;
+                temp.userEmail = rows[i].user_email;
                 temp.title = rows[i].title;
                 temp.response_cnt = rows[i].response_cnt;
                 temp.time = rows[i].time;
